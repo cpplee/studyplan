@@ -11,4 +11,5 @@
 
 4.18：  学习了负载均衡配置，nginx与upstream结合，nginx与keepalive结合，LVS配置与keepalive 结合，  虚拟服务器(Linux)与Master与Backup与从1主服务器和从2主服务器.
 php实现mysql读写分离.理解反向代理.
+未完成的事情：实验室论文没有进展,method还没开始写,荒废的c和c++还没有复习,论文代码没有进展.
 
