@@ -27,4 +27,6 @@ DemoTest extends PHPUnit_Framework_TestCase{
 }
 setUp()和tearDown()方法在每个测试执行的时候都会被调用,而且会在测试类的初始实例上被调用.所以设置代码不会在测试实行之间持久保存，而且不会泄露每个测试之间的状态.
 
+一般调试php大多使用echo,var_dump等输出(exit,die)配合使用,或者用框架中的错误日志等等...利用Xdebug除了调试功能 还有助于确定那部分的代码运行很缓慢
+
 
