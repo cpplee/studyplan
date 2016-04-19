@@ -25,6 +25,6 @@ DemoTest extends PHPUnit_Framework_TestCase{
    $this->assertNotEquals(XX,$demo->XXXXX);
 
 }
-
+setUp()和tearDown()方法在每个测试执行的时候都会被调用,而且会在测试类的初始实例上被调用.所以设置代码不会在测试实行之间持久保存，而且不会泄露每个测试之间的状态.
 
 
