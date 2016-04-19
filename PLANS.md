@@ -78,5 +78,71 @@ $reference = $instance;
 
 
 
+//操作复制目录
+$path = '/usr/local/nginx/html';
+$newpath = '/usr/local/nginx/html/d';
+$result = mycopydir($path,$newpath);
+var_dump($result);
+function  mycopydir($source,$dest){
+       $filelist =array();
+        if(!is_dir($dest)){
+                exit("目录不存在");
+        }
+      $filelist = getdirinfo($source);
+        if(!$filelist){
+                exit("source目录异常,请检查!");
+        }
+        $transfersource = trim($source,"/");
+        $transfersource = explode('/',$transfersource);
+        $i = count($transfersource) - 1;
+        $currentdir = $transfersource[$i];
+        foreach ($filelist as $dir => $file) {
+                $newdir = str_replace($source,'' , $dir);
+                $copydir = $dest."/".$currentdir.'/'.$newdir;
+                if(!is_dir($copydir)){
+                        if(!mymkdir($copydir)){
+                                exit("无法创建目录$copydir,请检查权限");
+                        }
+                }
+                foreach ($file as  $filename) {
+                        if(!copy($dir."/".$filename,$copydir."/".$filename)){
+                        exit("无法拷贝文件$dir/$filename,请检查权限");
+                        }
+                }
+        }
+ return true;
+}
+
+function mymkdir($path){
+        $currentdir = '';
+        $newpath = explode('/',$path);
+        for ($i=0,$count=count($newpath); $i < $count; $i++) {
+                $currentdir .= $newpath[$i].'/';
+                if(!is_dir($currentdir)){
+                        if(!mkdir($currentdir)){
+                                return false;
+                        }
+                }
+        }
+        return true;
+}
+
+
+function getdirinfo($path){
+        static $filelist=array();
+        //echo $path;exit;
+        if(is_dir($path)){
+                $handle =  opendir($path);
+                while($filename = readdir($handle)){
+                        if($filename !="." && $filename !=".." && is_dir($path.'/'.$filename)){
+                                getdirinfo($path.'/'.$filename);
+                        }elseif(is_file($path.'/'.$filename)){
+                                $filelist[$path][] = $filename;
+                        }
+                }
+        }
+      return $filelist;
+}
+
 
 
