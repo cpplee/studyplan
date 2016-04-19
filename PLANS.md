@@ -40,7 +40,7 @@ $reference = $instance;
 
 实现递归目录，可以控制循环层次
 
-
+<?php
  $path =".";
   $list1 = getdirlist($path,3);
   var_dump($list1);
@@ -73,7 +73,7 @@ $reference = $instance;
 
  return $list;
  }
-
+?>
 
 
 
