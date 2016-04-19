@@ -16,3 +16,12 @@ php实现mysql读写分离.理解反向代理.
 未完成的事情：实验室论文没有进展,method还没开始写,荒废的c和c++还没有复习,论文代码没有进展.
 
 4.19：  重读<<PHP高级程序设计_模式,框架与测试>> 加深理解 抽象类,接口的使用,异常的使用,复习了单例模式以及工厂模式,以及在php6中出现的static新的特性,反射类在众多接口中的使用,利用反射去查找插件等.
+例如:利用RefectionClass的implementsInterface方法去检查哪些类去继承了某些插件,然后将他们装在数组里返回,然后利用迭代这个数组,然后利用每个反射得到的类(这些类都有我们想要的接口功能),利用他们的getMethod方法去检查,实现了这些接口中的有没有我们想要的方法,将有我们想要功能方法的类去检查他是否是一个静态函数,如果是静态就invoke(null)返回,如果不是就利用newInstance()去实现对象,然后invoke(stdClass),最后利用array_merge()方法将他们组合成一个数组.
+phpUnit,完成单元测试, reqiere_once('PHPUnit/Framework.php');
+DemoTest extends PHPUnit_Framework_TestCase{
+   
+   $demo =  new Demo();
+   $this->assertEquals(XX,$demo->XXXXX);
+   $this->assertNotEquals(XX,$demo->XXXXX);
+
+}
