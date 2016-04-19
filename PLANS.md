@@ -28,5 +28,19 @@ DemoTest extends PHPUnit_Framework_TestCase{
 setUp()和tearDown()方法在每个测试执行的时候都会被调用,而且会在测试类的初始实例上被调用.所以设置代码不会在测试实行之间持久保存，而且不会泄露每个测试之间的状态.
 
 一般调试php大多使用echo,var_dump等输出(exit,die)配合使用,或者用框架中的错误日志等等...利用Xdebug除了调试功能 还有助于确定那部分的代码运行很缓慢
+SPL的使用:key,current,rewind,next,valid接口中的方法重新实现，观察者模式的使用
+序列化的问题，非SPL的序列化魔术方法__sleep和__wakeup有一些问题,基类的私有成员访问受到了限制,通过Serializable消除这个限制.
+spl_autoload_register();
+对象标识符spl_object_hash();
+对同一对象的引用 
+class a{}
+$instance = new a();
+$reference = $instance;
+他们的对象标识符是相同的.
+
+
+
+
+
 
 
