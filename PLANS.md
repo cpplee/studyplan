@@ -38,6 +38,41 @@ $instance = new a();
 $reference = $instance;
 他们的对象标识符是相同的.
 
+实现递归目录，可以控制循环层次
+
+
+ $path =".";
+  $list1 = getdirlist($path,3);
+  var_dump($list1);
+  
+  function getdirlist($path,$num){
+          static $list = array();
+          static $count=0;
+          if(!is_dir($path)){
+                 $list[]=$path;
+         }else{          
+                  $count++;
+                  if($count<$num){
+                          $handle = opendir($path);
+                          while($name = readdir($handle)){
+                                  if(!isset($list[$path])){
+                                          $list[$path]='';
+                                  }       
+                                  if($name !='.' && $name !='..'){
+                                           
+                                         if(is_dir($path."/".$name)){
+                                                 $list[$path][] = $name;
+                                                  getdirlist($path."/".$name,$num);
+                                       }else{  
+                                                  $list[$path][] = $name;
+                                          }       
+                                 }       
+                          }       
+                }       
+          }       
+
+ return $list;
+ }
 
 
 
