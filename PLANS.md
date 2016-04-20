@@ -168,14 +168,14 @@ php文件锁有两种：共享锁和排他锁，也就是读锁(LOCK_SH)和写�
 flock — 轻便的咨询文件锁定
 bool flock ( int $handle , int $operation [, int &$wouldblock ] )
 flock() 操作的 handle 必须是一个已经打开的文件指针。 operation 可以是以下值之一：
-◾ 要取得共享锁定（读取的程序），将 operation 设为 LOCK_SH（ PHP 4.0.1 以前的版本设置为
-1）。
-◾ 要取得独占锁定（写入的程序），将 operation 设为 LOCK_EX（ PHP 4.0.1 以前的版本中设置为
-2）。
-◾ 要释放锁定（无论共享或独占），将 operation 设为 LOCK_UN（ PHP 4.0.1 以前的版本中设置为
-3）。
-◾ 如果不希望 flock() 在锁定时堵塞，则给 operation 加上 LOCK_NB（ PHP 4.0.1 以前的版本中设置
-为 4）。 
+1.要取得共享锁定（读取的程序），将 operation 设为 LOCK_SH（ PHP 4.0.1 以前的版本设置为
+1）.
+2.要取得独占锁定（写入的程序），将 operation 设为 LOCK_EX（ PHP 4.0.1 以前的版本中设置为
+2）.
+3.要释放锁定（无论共享或独占），将 operation 设为 LOCK_UN（ PHP 4.0.1 以前的版本中设置为
+3）.
+4.如果不希望 flock() 在锁定时堵塞，则给 operation 加上 LOCK_NB（ PHP 4.0.1 以前的版本中设置
+为 4）. 
 
 
 
@@ -198,7 +198,7 @@ db.xxx.find({gender:"m"},{_id:1,name:1})
 http://www.cnblogs.com/zdz8207/p/3765579.html 
 php 5.4中php-fpm 的重启、终止操作命令
 重启nginx
-#/usr/local/nginx/sbin/nginx -s reload
+/usr/local/nginx/sbin/nginx -s reload
 mongoDB及其php扩展安装
 http://blog.csdn.net/qmhball/article/details/8963763
 
