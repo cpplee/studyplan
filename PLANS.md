@@ -182,3 +182,14 @@ flock() 操作的 handle 必须是一个已经打开的文件指针。 operation
 
 4.20  应付一家创业公司的需求学习了mongodb,11点才起来,学了2个多小时,在linux安装,建库,增删改查,基本操作,这时候终于都用上了Nosql三剑客...好了出发江安助教,晚上回来继续深入查询,游标操作,索引,备份与恢复,分片的使用^_^
 
+show dbs;
+show collections;
+db.createCollection();
+db.XXX.insert();
+db.XXX.update()
+db.XXX.drop();
+db.XXX.remove();
+{$set:{xx:xx}}
+{$rename:{xx:xx}}
+{$unset:{xx:xx}}
+{$inc:{xx:xx}}
