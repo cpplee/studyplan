@@ -193,3 +193,4 @@ db.XXX.remove();
 {$rename:{xx:xx}}
 {$unset:{xx:xx}}
 {$inc:{xx:xx}}
+在update中第三个参数可以设置成{upsert:true/false}为true时等价于mysql的replace,{multi:true}代表匹配多行
