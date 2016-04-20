@@ -194,3 +194,12 @@ db.XXX.remove();
 {$unset:{xx:xx}}
 {$inc:{xx:xx}}
 在update中第三个参数可以设置成{upsert:true/false}为true时等价于mysql的replace,{multi:true}代表匹配多行
+db.xxx.find({gender:"m"},{_id:1,name:1})
+http://www.cnblogs.com/zdz8207/p/3765579.html 
+php 5.4中php-fpm 的重启、终止操作命令
+重启nginx
+#/usr/local/nginx/sbin/nginx -s reload
+mongoDB及其php扩展安装
+http://blog.csdn.net/qmhball/article/details/8963763
+
+
