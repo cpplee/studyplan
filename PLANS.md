@@ -306,6 +306,36 @@ db.stu.find({sn:99}).explain();
 	},
 	"ok" : 1
 }
+//查看索引
+//要注意索引是建立在牺牲写入和更改等操作的基础上的
+db.stu.getIndexes()
+[
+	{
+		"v" : 1,
+		"key" : {
+			"_id" : 1
+		},
+		"name" : "_id_",
+		"ns" : "test.stu"
+	},
+	{
+		"v" : 1,
+		"key" : {
+			"sn" : 1
+		},
+		"name" : "sn_1",
+		"ns" : "test.stu"
+	}
+]
+
+//删除索引
+db.stu.dropIndex({name:-1})
+
+//设置多列索引
+
+db.shop.ensureIndex({'spc.area':1})
+//设置唯一索引
+> db.shop.ensureIndex({'spc.area':1},{unique:true}}
 
 
 
