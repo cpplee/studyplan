@@ -396,3 +396,11 @@ user
 { "_id" : ObjectId("5718b645efff6b9f31611b37"), "name" : "Nokia", "spc" : { "weight" : 120, "area" : "taiwan" } }
 > 
 
+ pkill -9 mongo
+ ./bin/mongod --dbpath /home/m17 --logpath /home/mlog/m17.log --fork --auth 权限登录
+//导出csv格式的数据 
+ ./bin/mongoexport -d test -c stu -f sn,name -q '{sn:{$lte:10}}' --csv  -o ./test.stu
+ //导出json格式数据
+  ./bin/mongoexport -d test -c stu -f sn,name -q '{sn:{$lte:10}}'  -o ./test.stu.json
+
+ 
