@@ -204,3 +204,21 @@ http://blog.csdn.net/qmhball/article/details/8963763
 
 
 4.21 下午又因为助教浪费了时间，由于阿里云到期了(低配的用起来就是XXX)，换了新浪sae重新弄了下配置,微信公共号换了下地址，重新弄了代码，匆匆赶回望江，继续mongodb, 看了游标操作,让我感觉到了这个数据库的强大之处..继续学习..实习+论文一再搁浅,我的内心是崩溃加焦虑的..
+
+>for(var mycursor=db.bar.find({_id:{$lte:10}});mycursor.next();){ printjson(mycursor.next()) }
+
+> var mycursor = db.bar.find({_id:{$lte:5}})
+> mycursor.forEach(function(obj){printjson(obj)})
+//分页的时候用
+var mycursor = db.bar.find().skip(50);
+mycursor.forEach(function(obj){
+printjson(obj)
+})
+
+var mycursor = db.bar.find().skip(850).limit(10)
+mycursor.toArray();
+
+var mycursor = db.bar.find().skip(850).limit(10)
+mycursor.forEach(function(obj){
+printjson(obj.content)
+})
