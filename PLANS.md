@@ -345,4 +345,54 @@ db.stu.getIndexes()
 //哈希索引对于顺序和范围查询都不如B-tree好，适用于数据散列分布的
 db.XX.ensureIndex({XX:'hashed'})
 //索引重建
-db.collection.reIndexes();
+db.xx.reIndexes();
+
+
+//用户权限认证,注意mongo是角色跟随库的
+
+use admin
+switched to db admin
+> db.auth('dba','123456')
+1
+> show dbs
+admin  0.000GB
+local  0.000GB
+test   0.000GB
+> use test
+switched to db test
+> db.createUser(
+... {
+... user:'test',
+... pwd:'123456',
+... roles:[
+... {role:'readWrite',db:'test'}
+... ]
+... }
+... )
+Successfully added user: {
+	"user" : "test",
+	"roles" : [
+		{
+			"role" : "readWrite",
+			"db" : "test"
+		}
+	]
+}
+> db.auth('test','123456')
+1
+> show dbs
+admin  0.000GB
+local  0.000GB
+test   0.000GB
+> show collections;
+bar
+shop
+stu
+user
+> db.shop.find();
+{ "_id" : ObjectId("5718b1b3efff6b9f31611b34"), "name" : "Nokia", "spc" : { "weight" : 120, "area" : "taiwan" } }
+{ "_id" : ObjectId("5718b1c3efff6b9f31611b35"), "name" : "sanxing", "spc" : { "weight" : 220, "area" : "hanguo" } }
+{ "_id" : ObjectId("5718b643efff6b9f31611b36"), "name" : "Nokia", "spc" : { "weight" : 120, "area" : "taiwan" } }
+{ "_id" : ObjectId("5718b645efff6b9f31611b37"), "name" : "Nokia", "spc" : { "weight" : 120, "area" : "taiwan" } }
+> 
+
