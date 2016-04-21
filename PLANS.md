@@ -412,3 +412,9 @@ user
 ./bin/mongodump -d test //整个库,  -c tea 某个collection
 //恢复二进制文件
 ./bin/mongorestore -d test --dir dump/test/
+
+
+复习了session类重写 session_set_save_handle("sessRead","sessWrite","sessGC","sessDelete","sessBegin","sessEnd")
+session会话技术,能否持久化(如果要持久需要配置2个地方,一个是cookie时间,一个是垃圾回收时间)
+如果禁用了cookie，一般认为是不可以使用session的。但可以通过(url,post等传送)
+
