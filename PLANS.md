@@ -214,7 +214,9 @@ var mycursor = db.bar.find().skip(50);
 mycursor.forEach(function(obj){
 printjson(obj)
 })
-
+//不要随意使用toArray()
+//会把所有的行立即以对象的方式组织在内存
+//可以在取出少数几行的时候用这个功能
 var mycursor = db.bar.find().skip(850).limit(10)
 mycursor.toArray();
 
@@ -222,3 +224,6 @@ var mycursor = db.bar.find().skip(850).limit(10)
 mycursor.forEach(function(obj){
 printjson(obj.content)
 })
+
+
+
