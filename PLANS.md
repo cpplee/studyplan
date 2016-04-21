@@ -225,5 +225,89 @@ mycursor.forEach(function(obj){
 printjson(obj.content)
 })
 
+//使用explain()类似mysql的执行计划(explain sql)
+db.stu.find({sn:99}).explain();
+//查询结果
+{
+	"queryPlanner" : {
+		"plannerVersion" : 1,
+		"namespace" : "test.stu",
+		"indexFilterSet" : false,
+		"parsedQuery" : {
+			"sn" : {
+				"$eq" : 99
+			}
+		},
+		"winningPlan" : {
+			"stage" : "COLLSCAN",
+			"filter" : {
+				"sn" : {
+					"$eq" : 99
+				}
+			},
+			"direction" : "forward"
+		},
+		"rejectedPlans" : [ ]
+	},
+	"serverInfo" : {
+		"host" : "localhost.localdomain",
+		"port" : 27017,
+		"version" : "3.2.5",
+		"gitVersion" : "34e65e5383f7ea1726332cb175b73077ec4a1b02"
+	},
+	"ok" : 1
+}
+
+
+//设置索引
+ db.stu.ensureIndex({sn:1})
+
+//再次查询
+
+db.stu.find({sn:99}).explain();
+{
+	"queryPlanner" : {
+		"plannerVersion" : 1,
+		"namespace" : "test.stu",
+		"indexFilterSet" : false,
+		"parsedQuery" : {
+			"sn" : {
+				"$eq" : 99
+			}
+		},
+		"winningPlan" : {
+			"stage" : "FETCH",
+			"inputStage" : {
+				"stage" : "IXSCAN",
+				"keyPattern" : {
+					"sn" : 1
+				},
+				"indexName" : "sn_1",
+				"isMultiKey" : false,
+				"isUnique" : false,
+				"isSparse" : false,
+				"isPartial" : false,
+				"indexVersion" : 1,
+				"direction" : "forward",
+				"indexBounds" : {
+					"sn" : [
+						"[99.0, 99.0]"
+					]
+				}
+			}
+		},
+		"rejectedPlans" : [ ]
+	},
+	"serverInfo" : {
+		"host" : "localhost.localdomain",
+		"port" : 27017,
+		"version" : "3.2.5",
+		"gitVersion" : "34e65e5383f7ea1726332cb175b73077ec4a1b02"
+	},
+	"ok" : 1
+}
+
+
+
 
 
