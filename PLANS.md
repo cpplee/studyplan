@@ -337,7 +337,9 @@ db.shop.ensureIndex({'spc.area':1})
 //设置唯一索引
 > db.shop.ensureIndex({'spc.area':1},{unique:true}}
 
-
+//稀疏索引
+> db.shop.ensureIndex({email:1},{sparse:true})
+//会把数据中没有email列的忽略,而不是像普通索引将没有email列的当做null查询出来
 
 
 
