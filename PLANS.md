@@ -402,5 +402,6 @@ user
  ./bin/mongoexport -d test -c stu -f sn,name -q '{sn:{$lte:10}}' --csv  -o ./test.stu
  //导出json格式数据
   ./bin/mongoexport -d test -c stu -f sn,name -q '{sn:{$lte:10}}'  -o ./test.stu.json
+//导入json数据
+ [root@localhost mongodb-linux-x86_64-3.2.5]# ./bin/mongoimport -d test -c animal --type json --file ./test.stu.json
 
- 
