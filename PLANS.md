@@ -405,3 +405,7 @@ user
 //导入json数据
  [root@localhost mongodb-linux-x86_64-3.2.5]# ./bin/mongoimport -d test -c animal --type json --file ./test.stu.json
 
+//导出二进制文件
+./bin/mongodump -d test //整个库,  -c tea 某个collection
+//恢复二进制文件
+./bin/mongorestore -d test --dir dump/test/
