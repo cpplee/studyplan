@@ -400,6 +400,9 @@ user
  ./bin/mongod --dbpath /home/m17 --logpath /home/mlog/m17.log --fork --auth 权限登录
 //导出csv格式的数据 
  ./bin/mongoexport -d test -c stu -f sn,name -q '{sn:{$lte:10}}' --csv  -o ./test.stu
+ //导入csv格式数据
+ ./bin/mongoimport -d test -c brid4 --type csv --headerline --file ./test.stu //注意headerline！！！
+
  //导出json格式数据
   ./bin/mongoexport -d test -c stu -f sn,name -q '{sn:{$lte:10}}'  -o ./test.stu.json
 //导入json数据
