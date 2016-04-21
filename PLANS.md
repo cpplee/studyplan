@@ -329,11 +329,11 @@ db.stu.getIndexes()
 ]
 
 //删除索引
-db.stu.dropIndex({name:-1})
+>db.stu.dropIndex({name:-1})
 
 //设置多列索引
 
-db.shop.ensureIndex({'spc.area':1})
+>db.shop.ensureIndex({'spc.area':1})
 //设置唯一索引
 > db.shop.ensureIndex({'spc.area':1},{unique:true}}
 
@@ -342,4 +342,7 @@ db.shop.ensureIndex({'spc.area':1})
 //会把数据中没有email列的忽略,而不是像普通索引将没有email列的当做null查询出来
 
 
-
+//哈希索引对于顺序和范围查询都不如B-tree好，适用于数据散列分布的
+db.XX.ensureIndex({XX:'hashed'})
+//索引重建
+db.collection.reIndexes();
