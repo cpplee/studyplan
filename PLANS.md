@@ -622,7 +622,29 @@ mongos查询某条数据的时候,先要找configsvr,询问得到该数据在哪
 
 未完成的事: 复习shell脚本  论文method 实验没跑  复习项目代码
 =============================================================================================
-
+[root@localhost mongodb-linux-x86_64-3.2.5]# pkill -9 mongo
+[root@localhost mongodb-linux-x86_64-3.2.5]# rm -rf /home/m*
+[root@localhost mongodb-linux-x86_64-3.2.5]# ps aux |grep 'mongo'
+root      71396  0.0  0.0 112660   960 pts/2    R+   23:50   0:00 grep --color=auto mongo
+[root@localhost mongodb-linux-x86_64-3.2.5]# mkdir -p /home/m17 /home/m18 /home/m20 /home/mlog
+[root@localhost mongodb-linux-x86_64-3.2.5]# ./bin/mongod --dbpath /home/m17/ --logpath /home/mlog/m17.log --fork --port 27017 --smallfiles
+about to fork child process, waiting until server is ready for connections.
+forked process: 71550
+child process started successfully, parent exiting
+[root@localhost mongodb-linux-x86_64-3.2.5]# ./bin/mongod --dbpath /home/m18/ --logpath /home/mlog/m18.log --fork --port 27018 --smallfiles
+about to fork child process, waiting until server is ready for connections.
+forked process: 71587
+child process started successfully, parent exiting
+[root@localhost mongodb-linux-x86_64-3.2.5]# ./bin/mongod --dbpath /home/m20/ --logpath /home/mlog/m20.log --fork --port 27020 --configsvr
+about to fork child process, waiting until server is ready for connections.
+forked process: 71854
+child process started successfully, parent exiting
+[root@localhost mongodb-linux-x86_64-3.2.5]# ./bin/mongos --logpath /home/mlog/m30.log --port 30000 --configdb 192.168.1.211:27020 --fork
+2016-04-21T23:56:33.976-0700 W SHARDING [main] Running a sharded cluster with fewer than 3 config servers should only be done for testing purposes and is not recommended for production.
+about to fork child process, waiting until server is ready for connections.
+forked process: 71901
+child process started successfully, parent exiting
+[root@localhost mongodb-linux-x86_64-3.2.5]# 
 
 
 
