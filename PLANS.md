@@ -687,6 +687,74 @@ mongos> sh.status()
   databases:
 
 =============================================================================================== 
+mongos> sh.status()
+--- Sharding Status --- 
+  sharding version: {
+	"_id" : 1,
+	"minCompatibleVersion" : 5,
+	"currentVersion" : 6,
+	"clusterId" : ObjectId("5719cb22830db9361951c90b")
+}
+  shards:
+	{  "_id" : "shard0000",  "host" : "192.168.1.211:27017" }
+	{  "_id" : "shard0001",  "host" : "192.168.1.211:27018" }
+  active mongoses:
+	"3.2.5" : 1
+  balancer:
+	Currently enabled:  yes
+	Currently running:  no
+	Failed balancer rounds in last 5 attempts:  0
+	Migration Results for the last 24 hours: 
+		No recent migrations
+  databases:
+	{  "_id" : "test",  "primary" : "shard0000",  "partitioned" : false }
+
+mongos> sh.enableSharding('shop')
+{ "ok" : 1 }
+mongos> sh.status()
+
+==========================
+mongos> sh.shardCollection('shop.goods',{goods_id:1});
+{ "collectionsharded" : "shop.goods", "ok" : 1 }
+mongos> sh.status()
+--- Sharding Status --- 
+  sharding version: {
+	"_id" : 1,
+	"minCompatibleVersion" : 5,
+	"currentVersion" : 6,
+	"clusterId" : ObjectId("5719cb22830db9361951c90b")
+}
+  shards:
+	{  "_id" : "shard0000",  "host" : "192.168.1.211:27017" }
+	{  "_id" : "shard0001",  "host" : "192.168.1.211:27018" }
+  active mongoses:
+	"3.2.5" : 1
+  balancer:
+	Currently enabled:  yes
+	Currently running:  no
+	Failed balancer rounds in last 5 attempts:  0
+	Migration Results for the last 24 hours: 
+		No recent migrations
+  databases:
+	{  "_id" : "test",  "primary" : "shard0000",  "partitioned" : false }
+	{  "_id" : "shop",  "primary" : "shard0001",  "partitioned" : true }
+		shop.goods
+			shard key: { "goods_id" : 1 }
+			unique: false
+			balancing: true
+			chunks:
+				shard0001	1
+			{ "goods_id" : { "$minKey" : 1 } } -->> { "goods_id" : { "$maxKey" : 1 } } on : shard0001 Timestamp(1, 0) 
+
+========================================================================================
+插入数据以后发现都集中在port 27018端口的 shard上
+这是因为 mongodb不是从单片文档的级别绝对平均的散落在各个片上
+而是N篇文章，形成一个块”chunk“
+优先放在某个片上，当这个片上的chunk，比另一个片上的chunk,区别比较大的时候,(>=3)，会把本片上的chunk,移到另外一个片上,已chunk为单位
+维护片之间的数据平衡
+
+
+===========================================================================================
 
 
 
