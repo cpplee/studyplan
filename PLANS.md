@@ -885,8 +885,13 @@ mongos> sh.status()
 			too many chunks to print, use verbose if you want to force print
 
 
+//replication shard整合
+mongos -> configsvr  用路由脸上这个meta存储的端口 ,addShared("rs数字/IP地址：端口"); 在不同的ip上做replication 链接的是主端口!
+分片完成
 
 
+
+//php整合短网址
 
 
 
