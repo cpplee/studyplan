@@ -646,8 +646,47 @@ forked process: 71901
 child process started successfully, parent exiting
 [root@localhost mongodb-linux-x86_64-3.2.5]# 
 
+=================================================
 
 
+[root@localhost mongodb-linux-x86_64-3.2.5]# ps aux |grep mongo
+root      71550  0.1  0.8 343984 33600 ?        Sl   23:51   0:00 ./bin/mongod --dbpath /home/m17/ --logpath /home/mlog/m17.log --fork --port 27017 --smallfiles
+root      71587  0.1  0.8 343972 33588 ?        Sl   23:52   0:00 ./bin/mongod --dbpath /home/m18/ --logpath /home/mlog/m18.log --fork --port 27018 --smallfiles
+root      71854  0.2  0.9 371472 37612 ?        Sl   23:54   0:00 ./bin/mongod --dbpath /home/m20/ --logpath /home/mlog/m20.log --fork --port 27020 --configsvr
+root      71901  0.0  0.1 270740  7572 ?        Sl   23:56   0:00 ./bin/mongos --logpath /home/mlog/m30.log --port 30000 --configdb 192.168.1.211:27020 --fork
+root      71948  0.0  0.0 112660   960 pts/2    R+   23:59   0:00 grep --color=auto mongo
+=============================================================
+
+//增加分片
+[root@localhost mongodb-linux-x86_64-3.2.5]# ./bin/mongo --port 30000
+MongoDB shell version: 3.2.5
+connecting to: 127.0.0.1:30000/test
+mongos> sh.addShard('192.168.1.211:27017');
+{ "shardAdded" : "shard0000", "ok" : 1 }
+mongos> sh.addShard('192.168.1.211:27018');
+{ "shardAdded" : "shard0001", "ok" : 1 }
+mongos> sh.status()
+--- Sharding Status --- 
+  sharding version: {
+	"_id" : 1,
+	"minCompatibleVersion" : 5,
+	"currentVersion" : 6,
+	"clusterId" : ObjectId("5719cb22830db9361951c90b")
+}
+  shards:
+	{  "_id" : "shard0000",  "host" : "192.168.1.211:27017" }
+	{  "_id" : "shard0001",  "host" : "192.168.1.211:27018" }
+  active mongoses:
+	"3.2.5" : 1
+  balancer:
+	Currently enabled:  yes
+	Currently running:  no
+	Failed balancer rounds in last 5 attempts:  0
+	Migration Results for the last 24 hours: 
+		No recent migrations
+  databases:
+
+=============================================================================================== 
 
 
 
