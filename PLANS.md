@@ -755,6 +755,139 @@ mongos> sh.status()
 
 
 ===========================================================================================
+mongos> show dbs
+config  0.001GB
+shop    0.005GB
+test    0.000GB
+mongos> use config
+switched to db config
+mongos> show collections;
+changelog
+chunks
+collections
+databases
+lockpings
+locks
+mongos
+settings
+shards
+tags
+version
+//修改chunk大小
+mongos> db.settings.save({_id:'chunksize'},{$set:{value:1}})
+
+问: 为什么插入了10万条数据,才2个chunk?
+答: 说明chunk比较大(默认是64M)
+在config数据库中,修改chunksize的值.
+
+问: 既然优先往某个片上插入,当chunk失衡时,再移动chunk,
+自然,随着数据的增多,shard的实例之间,有chunk来回移动的现象,这将带来什么问题?
+答: 服务器之间IO的增加, 
+
+接上问: 能否我定义一个规则, 某N条数据形成1个块,预告分配M个chunk,
+M个chunk预告分配在不同片上. 
+以后的数据直接入各自预分配好的chunk,不再来回移动?
+
+答: 能, 手动预先分片!
+
+==========================================================================
+//开始手动分片
+//建立片键!!userid!!
+mongos> sh.shardCollection('shop.user',{userid:1})
+{ "collectionsharded" : "shop.user", "ok" : 1 }
+mongos> sh.status()
+--- Sharding Status --- 
+  sharding version: {
+	"_id" : 1,
+	"minCompatibleVersion" : 5,
+	"currentVersion" : 6,
+	"clusterId" : ObjectId("5719cb22830db9361951c90b")
+}
+  shards:
+	{  "_id" : "shard0000",  "host" : "192.168.1.211:27017" }
+	{  "_id" : "shard0001",  "host" : "192.168.1.211:27018" }
+  active mongoses:
+	"3.2.5" : 1
+  balancer:
+	Currently enabled:  yes
+	Currently running:  no
+	Failed balancer rounds in last 5 attempts:  0
+	Migration Results for the last 24 hours: 
+		1 : Success
+  databases:
+	{  "_id" : "test",  "primary" : "shard0000",  "partitioned" : false }
+	{  "_id" : "shop",  "primary" : "shard0001",  "partitioned" : true }
+		shop.goods
+			shard key: { "goods_id" : 1 }
+			unique: false
+			balancing: true
+			chunks:
+				shard0000	1
+				shard0001	2
+			{ "goods_id" : { "$minKey" : 1 } } -->> { "goods_id" : 2 } on : shard0000 Timestamp(2, 0) 
+			{ "goods_id" : 2 } -->> { "goods_id" : 12 } on : shard0001 Timestamp(2, 1) 
+			{ "goods_id" : 12 } -->> { "goods_id" : { "$maxKey" : 1 } } on : shard0001 Timestamp(1, 3) 
+		shop.user
+			shard key: { "userid" : 1 }
+			unique: false
+			balancing: true
+			chunks:
+				shard0001	1
+			{ "userid" : { "$minKey" : 1 } } -->> { "userid" : { "$maxKey" : 1 } } on : shard0001 Timestamp(1, 0) 
+
+//手动分片使用splitAt('针对的表eg: shop.user');
+
+mongos> use shop
+switched to db shop
+mongos> for(var i=0; i<40; i++){
+... sh.splitAt('shop.user',{userid:i*1000})}
+{ "ok" : 1 }
+
+mongos> sh.status()
+--- Sharding Status --- 
+  sharding version: {
+	"_id" : 1,
+	"minCompatibleVersion" : 5,
+	"currentVersion" : 6,
+	"clusterId" : ObjectId("5719cb22830db9361951c90b")
+}
+  shards:
+	{  "_id" : "shard0000",  "host" : "192.168.1.211:27017" }
+	{  "_id" : "shard0001",  "host" : "192.168.1.211:27018" }
+  active mongoses:
+	"3.2.5" : 1
+  balancer:
+	Currently enabled:  yes
+	Currently running:  no
+	Failed balancer rounds in last 5 attempts:  0
+	Migration Results for the last 24 hours: 
+		6 : Success
+  databases:
+	{  "_id" : "test",  "primary" : "shard0000",  "partitioned" : false }
+	{  "_id" : "shop",  "primary" : "shard0001",  "partitioned" : true }
+		shop.goods
+			shard key: { "goods_id" : 1 }
+			unique: false
+			balancing: true
+			chunks:
+				shard0000	1
+				shard0001	2
+			{ "goods_id" : { "$minKey" : 1 } } -->> { "goods_id" : 2 } on : shard0000 Timestamp(2, 0) 
+			{ "goods_id" : 2 } -->> { "goods_id" : 12 } on : shard0001 Timestamp(2, 1) 
+			{ "goods_id" : 12 } -->> { "goods_id" : { "$maxKey" : 1 } } on : shard0001 Timestamp(1, 3) 
+		shop.user
+			shard key: { "userid" : 1 }
+			unique: false
+			balancing: true
+			chunks:
+				shard0000	5
+				shard0001	36
+			too many chunks to print, use verbose if you want to force print
+
+
+
+
+
 
 
 
