@@ -534,8 +534,47 @@ rs2:OTHER>rs.status()
 
 //删除
 rs2:PRIMARY> rs.remove('192.168.1.211:27018');
-//添加
+//添加不起作用
 rs.add('192.168.1.211:27018');
+//不能多次初始化一个变量=>例如var rsconf ={};
+如果删掉secondary可以使用rs.reconf(变量);重新配置
+给primary赋值,secondary也可以查看到 但是要注意not master and slaveOk=false，使用rs.slaveOK()解决
+rs2:PRIMARY> show dbs
+local  0.000GB
+rs2:PRIMARY> use test
+switched to db test
+rs2:PRIMARY> db.stu.insert({title:'hello'})
+WriteResult({ "nInserted" : 1 })
+rs2:PRIMARY> show dbs;
+local  0.000GB
+test   0.000GB
+rs2:PRIMARY> show collections;
+stu
+rs2:PRIMARY> db.stu.find()
+{ "_id" : ObjectId("5719b78b5bddae62f1ef164e"), "title" : "hello" }
+rs2:PRIMARY> exit
+bye
+[root@localhost mongodb-linux-x86_64-3.2.5]# ./bin/mongo --port 27018
+MongoDB shell version: 3.2.5
+connecting to: 127.0.0.1:27018/test
+
+
+rs2:SECONDARY> use test
+switched to db test
+rs2:SECONDARY> db.stu.find()
+Error: error: { "ok" : 0, "errmsg" : "not master and slaveOk=false", "code" : 13435 }
+rs2:SECONDARY> rs.slaveok()
+2016-04-21T22:35:30.497-0700 E QUERY    [thread1] TypeError: rs.slaveok is not a function :
+@(shell):1:1
+
+rs2:SECONDARY> rs.slaveOk();
+rs2:SECONDARY> db.stu.find()
+{ "_id" : ObjectId("5719b78b5bddae62f1ef164e"), "title" : "hello" }
+rs2:SECONDARY> 
+
+
+
+
 
 
 
