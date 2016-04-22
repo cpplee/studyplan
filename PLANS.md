@@ -418,3 +418,33 @@ user
 session会话技术,能否持久化(如果要持久需要配置2个地方,一个是cookie时间,一个是垃圾回收时间)
 如果禁用了cookie，一般认为是不可以使用session的。但可以通过(url,post等传送)
 
+4.22日   
+replication的应用
+[root@localhost mongodb-linux-x86_64-3.2.5]# pkill -9 mongo
+[root@localhost mongodb-linux-x86_64-3.2.5]# mkdir /home/m17 /home/m18 /home/m19 /home/mlog
+[root@localhost mongodb-linux-x86_64-3.2.5]# ls /home/m*
+/home/m17:
+/home/m18:
+/home/m19:
+/home/mlog:
+
+[root@localhost mongodb-linux-x86_64-3.2.5]# ./bin/mongod --dbpath /home/m17 --logpath /home/mlog/m17.log --fork --port 27017 --replSet rs2 --smallfiles
+about to fork child process, waiting until server is ready for connections.
+forked process: 67248
+child process started successfully, parent exiting
+
+[root@localhost mongodb-linux-x86_64-3.2.5]# ./bin/mongod --dbpath /home/m18 --logpath /home/mlog/m18.log --fork --port 27018 --replSet rs2 --smallfiles
+about to fork child process, waiting until server is ready for connections.
+forked process: 67306
+child process started successfully, parent exiting
+
+[root@localhost mongodb-linux-x86_64-3.2.5]# ./bin/mongod --dbpath /home/m19 --logpath /home/mlog/m19.log --fork --port 27019 --replSet rs2 --smallfiles
+about to fork child process, waiting until server is ready for connections.
+forked process: 67332
+child process started successfully, parent exiting
+
+
+
+
+
+
