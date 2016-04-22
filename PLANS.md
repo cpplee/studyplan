@@ -444,6 +444,99 @@ forked process: 67332
 child process started successfully, parent exiting
 
 
+> var rsconf = {     _id:'rs2',     members:     [         {_id:0,         host:'192.168.1.211:27017'         },         {_id:1,         host:'192.168.1.211:27018'         },         {_id:2,         host:'192.168.1.211:27019'         }     ] }
+
+> printjson(rsconf)
+{
+	"_id" : "rs2",
+	"members" : [
+		{
+			"_id" : 0,
+			"host" : "192.168.1.211:27017"
+		},
+		{
+			"_id" : 1,
+			"host" : "192.168.1.211:27018"
+		},
+		{
+			"_id" : 2,
+			"host" : "192.168.1.211:27019"
+		}
+	]
+}
+> rs.initiate(rsconf)
+{ "ok" : 1 }
+rs2:OTHER>rs.status()
+{
+	"set" : "rs2",
+	"date" : ISODate("2016-04-22T05:21:06.604Z"),
+	"myState" : 1,
+	"term" : NumberLong(1),
+	"heartbeatIntervalMillis" : NumberLong(2000),
+	"members" : [
+		{
+			"_id" : 0,
+			"name" : "192.168.1.211:27017",
+			"health" : 1,
+			"state" : 1,
+			"stateStr" : "PRIMARY",
+			"uptime" : 1825,
+			"optime" : {
+				"ts" : Timestamp(1461302412, 2),
+				"t" : NumberLong(1)
+			},
+			"optimeDate" : ISODate("2016-04-22T05:20:12Z"),
+			"infoMessage" : "could not find member to sync from",
+			"electionTime" : Timestamp(1461302412, 1),
+			"electionDate" : ISODate("2016-04-22T05:20:12Z"),
+			"configVersion" : 1,
+			"self" : true
+		},
+		{
+			"_id" : 1,
+			"name" : "192.168.1.211:27018",
+			"health" : 1,
+			"state" : 2,
+			"stateStr" : "SECONDARY",
+			"uptime" : 64,
+			"optime" : {
+				"ts" : Timestamp(1461302412, 2),
+				"t" : NumberLong(1)
+			},
+			"optimeDate" : ISODate("2016-04-22T05:20:12Z"),
+			"lastHeartbeat" : ISODate("2016-04-22T05:21:06.364Z"),
+			"lastHeartbeatRecv" : ISODate("2016-04-22T05:21:05.783Z"),
+			"pingMs" : NumberLong(0),
+			"syncingTo" : "192.168.1.211:27017",
+			"configVersion" : 1
+		},
+		{
+			"_id" : 2,
+			"name" : "192.168.1.211:27019",
+			"health" : 1,
+			"state" : 2,
+			"stateStr" : "SECONDARY",
+			"uptime" : 64,
+			"optime" : {
+				"ts" : Timestamp(1461302412, 2),
+				"t" : NumberLong(1)
+			},
+			"optimeDate" : ISODate("2016-04-22T05:20:12Z"),
+			"lastHeartbeat" : ISODate("2016-04-22T05:21:06.364Z"),
+			"lastHeartbeatRecv" : ISODate("2016-04-22T05:21:05.783Z"),
+			"pingMs" : NumberLong(0),
+			"syncingTo" : "192.168.1.211:27017",
+			"configVersion" : 1
+		}
+	],
+	"ok" : 1
+}
+
+//删除
+rs2:PRIMARY> rs.remove('192.168.1.211:27018');
+//添加
+rs.add('192.168.1.211:27018');
+
 
 
 
