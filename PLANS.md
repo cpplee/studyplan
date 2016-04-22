@@ -572,6 +572,40 @@ rs2:SECONDARY> db.stu.find()
 { "_id" : ObjectId("5719b78b5bddae62f1ef164e"), "title" : "hello" }
 rs2:SECONDARY> 
 
+//replication基本配置完成 剩下的可以rs.help()查看帮助
+
+
+
+简单的自动启动脚本
+vim start.sh
+#!/bin/bash
+IP=192.168.1.211
+NA=rs2
+
+pkill -9 mongo
+rm -rf /home/m*
+
+mkdir -p /home/m17 /home/m18 /home/m19 /home/mlog
+
+/usr/local/mongodb/mongodb-linux-x86_64-3.2.5/bin/mongod --dbpath /home/m17 --logpath /home/mlog/m17.log --port 27017 --fork --smallfiles --replSet ${NA}
+
+/usr/local/mongodb/mongodb-linux-x86_64-3.2.5/bin/mongod --dbpath /home/m18 --logpath /home/mlog/m18.log --port 27018 --fork --smallfiles --replSet ${NA}
+
+/usr/local/mongodb/mongodb-linux-x86_64-3.2.5/bin/mongod --dbpath /home/m19 --logpath /home/mlog/m19.log --port 27019 --fork --smallfiles --replSet ${NA}
+
+/usr/local/mongodb/mongodb-linux-x86_64-3.2.5/bin/mongo <<EOF
+use admin
+var rsconf = {
+_id:'rs2',
+members:[
+{_id:0,host:'${IP}:27017'},
+{_id:1,host:'${IP}:27018'},
+{_id:2,host:'${IP}:27019'}
+]
+}
+rs.initiate(rsconf);
+EOF
+
 
 
 
