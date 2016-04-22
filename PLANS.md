@@ -896,9 +896,29 @@ mongos> sh.status()
      2.mongodb中要实现自增长的数列
      eg:若在mongo中实现这个可以用
      insert({_id:1,sn:0})
-     findAndModify({_id:1},{$inr:{sn:1}})
-     	     
+     findAndModify({query:{_id:1},update:{$inc:{sn:1}}})
      
+     
+     #php中的实现     
+  $m = new MongoClient('mongodb://192.168.1.211:27017');
+        $db = $m->test;
+    $c = $db->selectCollection('cnt');
+  //  var_dump($c);
+   $temp = $c->findAndModify(array('_id'=>1),array('$inc'=>array('sn'=>1)));
+      var_dump($temp);
+        echo 'Ok';
+    //  $new = array('title'=>'today is sunday','xinqing'=>'very good');
+//      $c->insert($new); 
+  //  echo '插入成功';
+  
+  
+  #mongodb中的实现
+ > db.cnt.drop()
+true
+> db.cnt.insert({_id:1,sn:0})
+WriteResult({ "nInserted" : 1 })
+> db.cnt.findAndModify({query:{_id:1},update:{$inc:{sn:1}}})
+
 
 
 
