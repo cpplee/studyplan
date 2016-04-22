@@ -886,13 +886,19 @@ mongos> sh.status()
 
 
 //replication shard整合
-mongos -> configsvr  用路由脸上这个meta存储的端口 ,addShared("rs数字/IP地址：端口"); 在不同的ip上做replication 链接的是主端口!
-分片完成
+//mongos -> configsvr  用路由连上这个meta存储的端口 ,addShared("rs数字/IP地址：端口"); //在不同的ip上做replication，路由+meta链接的是shard{XX}的主端口(PRIMARY).
+//分片完成
 
 
 
-//php整合短网址
-
+//php+mongodb整合短网址
+     1.将得到的一个数字转换成64进制的数
+     2.mongodb中要实现自增长的数列
+     eg:若在mongo中实现这个可以用
+     insert({_id:1,sn:0})
+     findAndModify({_id:1},{$inr:{sn:1}})
+     	     
+     
 
 
 
