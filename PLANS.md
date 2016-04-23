@@ -974,3 +974,10 @@ WriteResult({ "nInserted" : 1 })
      reduce:把数组(同一个组)的数据,进行计算
 
 
+
+
+复习mysql优化:
+
+
+
+
