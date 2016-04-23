@@ -992,7 +992,11 @@ ccc 7 8 9
 aaa
 bbb
 ccc
-[root@localhost a]# 
+
+[root@localhost a]# awk '/a/{printf("%s\n",$1)}' score.txt
+aaa
+[root@localhost a]# awk '/b/{printf("%s\n",$0)}' score.txt
+bbb 4 5 6
 
 
 
