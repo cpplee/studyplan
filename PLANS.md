@@ -953,10 +953,24 @@ WriteResult({ "nInserted" : 1 })
       group()是不支持shard cluster的..无法进行分布式运算,这个时候需要 使用分布式的  
       aggregate(),  2.4版本以后新增加的 mapReduce()
       
+      db.goods.aggregate({
+      [{ $group:{_id:'$cat_id',total:{$sum:1}}}]
+      })
       
       
+      var map = function{
+      emit(this.cat_id,this.shop_price);
+      }
+      
+      var reduce = function(cat_id,all_price){
+       return Array.sum(all_price);
+      ]
+     
+     db.goods.mapReduce(map,reduce,{out:'res'});
 
 
 
+     map：显示把属于同一个组的数据,映射到一个数组里eg:cast_id:{xx,xx,xx,xx}
+     reduce:把数组(同一个组)的数据,进行计算
 
 
