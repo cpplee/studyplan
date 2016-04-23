@@ -978,6 +978,22 @@ WriteResult({ "nInserted" : 1 })
 
 复习mysql优化:
 
+1.show status 主要查看threads_running 有几个进行在工作
+Queries当前发生了多少次查询 
+Threads_connected 有多少线程进行了链接
+
+//awk的使用
+[root@localhost a]# vim score.txt
+[root@localhost a]# awk '{printf("%s\n",$0)}' score.txt
+aaa 1 2 3
+bbb 4 5 6
+ccc 7 8 9 
+[root@localhost a]# awk '{printf("%s\n",$1)}' score.txt
+aaa
+bbb
+ccc
+[root@localhost a]# 
+
 
 
 
