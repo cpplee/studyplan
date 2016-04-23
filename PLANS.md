@@ -997,7 +997,26 @@ ccc
 aaa
 [root@localhost a]# awk '/b/{printf("%s\n",$0)}' score.txt
 bbb 4 5 6
+[root@localhost a]# mysqladmin -uroot -p123456 ext | awk '/Queries/{printf("%d ",$4)}'
+243 
+[root@localhost a]# mysqladmin -uroot -p123456 ext | awk '/Queries/{printf("%d ",$4)}'
+245 
+[root@localhost a]# 
 
+============================================================================
+查看服务器周期性变化
+0-24小时内
+利用memcache  ab 等做压力测试
+回顾memcache 
+内存存储机制
+数据过期与删除机制
+php操作memcached
+多服务器集群算法
+缓存无底洞效应
+缓存血崩
+老数据被踢现象
+=============================================================================
+=====================================================================
 
 
 
