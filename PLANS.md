@@ -920,7 +920,41 @@ WriteResult({ "nInserted" : 1 })
 > db.cnt.findAndModify({query:{_id:1},update:{$inc:{sn:1}}})
 
 
+4.23 为重庆新旺激光技术有限公司做了网站demo, 下午boss要论文,结果一个字没动...
 
+      翻译了一套国外响应式模板,后台加入php框架,整合初步架构,设计数据库...
+      
+      晚上继续最后的mongodb学习,关于group()的应用... {
+      
+      key:{}
+      cond:{},
+      reduce:function(curr,result){}
+      initial:{}
+      finalize:function(result){}
+      }
+      
+      #eg: 查询每个栏目最贵的商品价格,max()操作
+      
+      {
+      key:{cat_id:1},
+      cond:{},
+      reduce:function(curr,result){
+        result.cnt +=1;
+        result.sum +=curr.shop_price;
+      }
+      initial:{sum=0,cnt:0},
+      finalize:function(result){
+        result.avg = result.sum/result.cnt
+      }
+      }
+      
+      
+      
+      group()是不支持shard cluster的..无法进行分布式运算,这个时候需要 使用分布式的  
+      aggregate(),  2.4版本以后新增加的 mapReduce()
+      
+      
+      
 
 
 
