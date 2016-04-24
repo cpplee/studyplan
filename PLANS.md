@@ -1019,7 +1019,9 @@ php操作memcached
 =====================================================================
 php安装扩展通用办法
 找到phpize --with-php-config=这个路径是php-config的路径
-
+./configure
+make && make install
+Installing shared extensions:     /usr/lib64/php/modules/
 
 或者
 phpize  
@@ -1037,7 +1039,8 @@ Configuring for:
 PHP Api Version:         20100412
 Zend Module Api No:      20100525
 Zend Extension Api No:   220100525
-
+得到
+Installing shared extensions:     /usr/lib64/php/modules/
 
 
 
