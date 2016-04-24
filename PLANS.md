@@ -1017,6 +1017,27 @@ php操作memcached
 老数据被踢现象
 =============================================================================
 =====================================================================
+php安装扩展通用办法
+找到phpize --with-php-config=这个路径是php-config的路径
+
+
+或者
+phpize  
+./configure  
+make  
+make install
+安装成功后会得到类似下面的提示
+Installing shared extensions:     /usr/local/lib/php/extensions/no-debug-non-zts-20090626/
+在此目录下你会找到xxxxxxxxx.so
+在php.ini中加入
+extension=/usr/local/lib/php/extensions/no-debug-non-zts-20090626/xxxxxxxx.so  
+
+[root@localhost memcache-2.2.7]# /usr/bin/phpize --with-php-config=/usr/bin/php-config
+Configuring for:
+PHP Api Version:         20100412
+Zend Module Api No:      20100525
+Zend Extension Api No:   220100525
+
 
 
 
