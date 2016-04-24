@@ -1016,9 +1016,13 @@ php操作memcached
 缓存血崩
 老数据被踢现象
 =============================================================================
+
+
+
 =====================================================================
+4.24 血崩,继续被逼着要论文...无视他...
 php安装扩展通用办法
-找到phpize --with-php-config=这个路径是php-config的路径
+找到执行目录phpize --with-php-config=这个路径是php-config的路径
 ./configure
 make && make install
 Installing shared extensions:     /usr/lib64/php/modules/
@@ -1041,6 +1045,13 @@ Zend Module Api No:      20100525
 Zend Extension Api No:   220100525
 得到
 Installing shared extensions:     /usr/lib64/php/modules/
+
+================================================================================
+memcache 启动的时候 -m64 -p 11211 -vvv -f 2 (-d 后台运行) -f 2是将增长因子设为2  改变每次chunk的大小！！！
+用slab allocator机制来管理内存..
+把内存分成数个slab仓库..每个仓库分成不同尺寸的块,需要存储内容的时候判断内容的大小,为其选取合理的仓库
+
+
 
 
 
