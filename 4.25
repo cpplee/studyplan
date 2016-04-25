@@ -1,0 +1,15 @@
+
+awk的简单使用分析mysql数据
+[root@localhost a]# awk '{printf("%s\n",$0)}' score.txt
+aaa 1 2 3
+bbb 4 5 6
+ccc 7 8 9 
+
+[root@localhost a]# mysqladmin -uroot -p123456 ext | awk '/Queries/{printf("%d\n",$4)}/Threads_connected/{printf("%d\n",$4)}/Threads_running/{printf("%d\n",$4)}'
+266
+2
+1
+[root@localhost a]# mysqladmin -uroot -p123456 ext | awk '/Queries/{printf("%d\n",$4)}/Threads_connected/{printf("%d\n",$4)}/Threads_running/{printf("%d\n",$4)}'
+268
+2
+1
