@@ -111,16 +111,34 @@ Percentage of the requests served within a certain time (ms)
   99%     77
  100%    159 (longest request)
 
-
+==========================
+>覆盖,>>追加
+==========================
 写一个shell每秒统计mysql的状态,并输出到status.txt
 tj.sh
 #!/bin/bash
 while true
 do
 
-mysqladmin -uroot -p123456 ext | awk '/Queries/{q=$4}/Threads_connected/{c=$5}/Threads_running/{r=$5}END{printf("%d %d %d\n",q,c,r)}' > status.txt
+mysqladmin -uroot -p123456 ext | awk '/Queries/{q=$4}/Threads_connected/{c=$5}/Threads_running/{r=$5}END{printf("%d %d %d\n",q,c,r)}' >> status.txt
 
 sleep1
+
+
+完成后sh tj.sh
+
+这时候用ab压力测试疯狂的请求测试页面,测试页面疯狂的请求mysql,由于代码里设置了memcache的存储,当memcache里有数据的时候不走mysql
+用ab查看每秒链接请求的次数,算出周期,用来设定缓存周期.
+用执行tj.sh得到的status.txt查看 请求mysql的状态
+对得到的 status.txt数据进行
+awk '{q=$1-last;last=$1}{print("%d %d %d\n",q,$2,$3)}' status.txt
+得到每秒增加的请求数量
+将数据导入Excel生成折线图或者其他有利于分析峰值的图表,找出最大峰值的地方进行分析,改进!
+
+
+
+
+
 
 
 
