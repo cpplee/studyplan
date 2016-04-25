@@ -216,9 +216,21 @@ MariaDB [lush_info]> show variables like '%size%';
 找到了tmp_table_size
 set global tmp_table_size=1024;
 set session tmp_table_size =1024;
-
+做这个是为了测试
+Copying to tmp table on disk 把内存临时表复制到磁盘
+=================================================================================================
 
 开启记录
+MariaDB [lush_info]> show variables like '%profiling%';
++------------------------+-------+
+| Variable_name          | Value |
++------------------------+-------+
+| have_profiling         | YES   |
+| profiling              | ON    |
+| profiling_history_size | 15    |
++------------------------+-------+
+如果不是YES那就
+开启
 set profiling = 1;或者set profiling=on;
 show profiles;
 列出最近的每一次查询
