@@ -1,0 +1,163 @@
+4.19：  重读<<PHP高级程序设计_模式,框架与测试>> 加深理解 抽象类,接口的使用,异常的使用,复习了单例模式以及工厂模式,以及在php6中出现的static新的特性,反射类在众多接口中的使用,利用反射去查找插件等.
+例如:利用RefectionClass的implementsInterface方法去检查哪些类去继承了某些插件,然后将他们装在数组里返回,然后利用迭代这个数组,然后利用每个反射得到的类(这些类都有我们想要的接口功能),利用他们的getMethod方法去检查,实现了这些接口中的有没有我们想要的方法,将有我们想要功能方法的类去检查他是否是一个静态函数,如果是静态就invoke(null)返回,如果不是就利用newInstance()去实现对象,然后invoke(stdClass),最后利用array_merge()方法将他们组合成一个数组.
+PHPUnit,完成单元测试, reqiere_once('PHPUnit/Framework.php');
+DemoTest extends PHPUnit_Framework_TestCase{
+   
+   $demo =  new Demo();
+   $this->assertEquals(XX,$demo->XXXXX);//断言的使用
+   $this->assertNotEquals(XX,$demo->XXXXX);
+
+}
+setUp()和tearDown()方法在每个测试执行的时候都会被调用,而且会在测试类的初始实例上被调用.所以设置代码不会在测试实行之间持久保存，而且不会泄露每个测试之间的状态.
+
+一般调试php大多使用echo,var_dump等输出(exit,die)配合使用,或者用框架中的错误日志等等...利用Xdebug除了调试功能 还有助于确定那部分的代码运行很缓慢
+SPL的使用:key,current,rewind,next,valid接口中的方法重新实现，观察者模式的使用
+序列化的问题，非SPL的序列化魔术方法__sleep和__wakeup有一些问题,基类的私有成员访问受到了限制,通过Serializable消除这个限制.
+spl_autoload_register();
+对象标识符spl_object_hash();
+对同一对象的引用 
+class a{}
+$instance = new a();
+$reference = $instance;
+他们的对象标识符是相同的.
+
+实现递归目录，可以控制循环层次
+
+<?php
+ $path =".";
+  $list1 = getdirlist($path,3);
+  var_dump($list1);
+  
+  function getdirlist($path,$num){
+          static $list = array();
+          static $count=0;
+          if(!is_dir($path)){
+                 $list[]=$path;
+         }else{          
+                  $count++;
+                  if($count<$num){
+                          $handle = opendir($path);
+                          while($name = readdir($handle)){
+                                  if(!isset($list[$path])){
+                                          $list[$path]='';
+                                  }       
+                                  if($name !='.' && $name !='..'){
+                                           
+                                         if(is_dir($path."/".$name)){
+                                                 $list[$path][] = $name;
+                                                  getdirlist($path."/".$name,$num);
+                                       }else{  
+                                                  $list[$path][] = $name;
+                                          }       
+                                 }       
+                          }       
+                }       
+          }       
+
+ return $list;
+ }
+?>
+
+
+
+
+//操作复制目录
+$path = '/usr/local/nginx/html';
+$newpath = '/usr/local/nginx/html/d';
+$result = mycopydir($path,$newpath);
+var_dump($result);
+function  mycopydir($source,$dest){
+       $filelist =array();
+        if(!is_dir($dest)){
+                exit("目录不存在");
+        }
+      $filelist = getdirinfo($source);
+        if(!$filelist){
+                exit("source目录异常,请检查!");
+        }
+        $transfersource = trim($source,"/");
+        $transfersource = explode('/',$transfersource);
+        $i = count($transfersource) - 1;
+        $currentdir = $transfersource[$i];
+        foreach ($filelist as $dir => $file) {
+                $newdir = str_replace($source,'' , $dir);
+                $copydir = $dest."/".$currentdir.'/'.$newdir;
+                if(!is_dir($copydir)){
+                        if(!mymkdir($copydir)){
+                                exit("无法创建目录$copydir,请检查权限");
+                        }
+                }
+                foreach ($file as  $filename) {
+                        if(!copy($dir."/".$filename,$copydir."/".$filename)){
+                        exit("无法拷贝文件$dir/$filename,请检查权限");
+                        }
+                }
+        }
+ return true;
+}
+
+function mymkdir($path){
+        $currentdir = '';
+        $newpath = explode('/',$path);
+        for ($i=0,$count=count($newpath); $i < $count; $i++) {
+                $currentdir .= $newpath[$i].'/';
+                if(!is_dir($currentdir)){
+                        if(!mkdir($currentdir)){
+                                return false;
+                        }
+                }
+        }
+        return true;
+}
+
+
+function getdirinfo($path){
+        static $filelist=array();
+        //echo $path;exit;
+        if(is_dir($path)){
+                $handle =  opendir($path);
+                while($filename = readdir($handle)){
+                        if($filename !="." && $filename !=".." && is_dir($path.'/'.$filename)){
+                                getdirinfo($path.'/'.$filename);
+                        }elseif(is_file($path.'/'.$filename)){
+                                $filelist[$path][] = $filename;
+                        }
+                }
+        }
+      return $filelist;
+}
+
+文件锁都包含哪些?
+php文件锁有两种：共享锁和排他锁，也就是读锁(LOCK_SH)和写锁(LOCK_EX) ,读的时候：
+如果不想出现dirty数据，那么最好使用lock_sh共享锁。可以考虑以下三种情况：
+1. 如果读的时候没有加共享锁，那么其他程序要写的话（不管这个写是加锁还是不加锁）都会立即写
+成功。如果正好读了一半，然后被其他程序给写了，那么读的后一半就有可能跟前一半对不上（前一
+半是修改前的，后一半是修改后的）
+2. 如果读的时候加上了共享锁（因为只是读，没有必要使用排他锁），这个时候，其他程序开始写，
+这个写程序没有使用锁，那么写程序会直接修改这个文件，也会导致前面一样的问题
+3. 最理想的情况是，读的时候加锁(lock_sh),写的时候也进行加锁(lock_ex),这样写程序会等着读程序
+完成之后才进行操作，而不会出现贸然操作的情况
+写的时候：
+如果多个写程序不加锁同时对文件进行操作，那么最后的数据有可能一部分是a程序写的，一部分是b
+程序写的 如果写的时候加锁了，这个时候有其他的程序来读，那么他会读到什么东西呢？
+1. 如果读程序没有申请共享锁，那么他会读到dirty的数据。比如写程序要写a,b,c三部分，写完a,这时
+候读读到的是a，继续写b，这时候读读到的是ab，然后写c，这时候读到的是abc.
+2. 如果读程序在之前申请了共享锁，那么读程序会等写程序将abc写完并释放锁之后才进行读。
+
+
+在什么情况下需要用文件锁?
+在会有并发写入的时候,或者读写同时操作的时候需要使用文件锁
+如何使用文件锁?
+flock — 轻便的咨询文件锁定
+bool flock ( int $handle , int $operation [, int &$wouldblock ] )
+flock() 操作的 handle 必须是一个已经打开的文件指针。 operation 可以是以下值之一：
+1.要取得共享锁定（读取的程序），将 operation 设为 LOCK_SH（ PHP 4.0.1 以前的版本设置为
+1）.
+2.要取得独占锁定（写入的程序），将 operation 设为 LOCK_EX（ PHP 4.0.1 以前的版本中设置为
+2）.
+3.要释放锁定（无论共享或独占），将 operation 设为 LOCK_UN（ PHP 4.0.1 以前的版本中设置为
+3）.
+4.如果不希望 flock() 在锁定时堵塞，则给 operation 加上 LOCK_NB（ PHP 4.0.1 以前的版本中设置
+为 4）. 
+
+
