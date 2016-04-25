@@ -1,0 +1,58 @@
+#复习mysql优化
+
+列选择原则:
+1:字段类型优先级 整型 > date,time > enum,char>varchar > blob
+列的特点分析:
+整型: 定长,没有国家/地区之分,没有字符集的差异
+time定长,运算快,节省空间. 考虑时区,写sql时不方便 where > ‘2005-10-12’;
+enum: 能起来约束值的目的, 内部用整型来存储,但与char联查时,内部要经历串与值的转化
+Char 定长, 考虑字符集和(排序)校对集
+varchar, 不定长 要考虑字符集的转换与排序时的校对集,速度慢.
+text/Blob 无法使用内存临时表
+
+附: 关于date/time的选择,大师的明确意见
+http://www.xaprb.com/blog/2014/01/30/timestamps-in-mysql/
+
+
+MariaDB [lush_info]> create table t3(
+    -> name char(1) not null default '',
+    -> key(name)
+    -> )engine=myisam charset=utf8;
+Query OK, 0 rows affected (0.03 sec)
+
+MariaDB [lush_info]> create table t4(
+    -> name char(1),
+    -> key(name)
+    -> )engine=myisam charset=utf8;
+Query OK, 0 rows affected (0.00 sec)
+
+MariaDB [lush_info]> insert into t3 values('a'),('');
+Query OK, 2 rows affected (0.08 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+MariaDB [lush_info]> insert into t4 values('a'),(null);Query OK, 2 rows affected (0.00 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+MariaDB [lush_info]> select * from t3 where name='a';
++------+
+| name |
++------+
+| a    |
++------+
+1 row in set (0.00 sec)
+
+
+
+MariaDB [lush_info]> explain select * from t3 where name='a'\G
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: t3
+         type: ref
+possible_keys: name
+          key: name
+      key_len: 3
+          ref: const
+         rows: 1
+        Extra: Using where; Using index
+1 row in set (0.00 sec)
