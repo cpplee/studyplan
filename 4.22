@@ -1,0 +1,501 @@
+4.22日   
+replication的应用
+[root@localhost mongodb-linux-x86_64-3.2.5]# pkill -9 mongo
+[root@localhost mongodb-linux-x86_64-3.2.5]# mkdir /home/m17 /home/m18 /home/m19 /home/mlog
+[root@localhost mongodb-linux-x86_64-3.2.5]# ls /home/m*
+/home/m17:
+/home/m18:
+/home/m19:
+/home/mlog:
+
+[root@localhost mongodb-linux-x86_64-3.2.5]# ./bin/mongod --dbpath /home/m17 --logpath /home/mlog/m17.log --fork --port 27017 --replSet rs2 --smallfiles
+about to fork child process, waiting until server is ready for connections.
+forked process: 67248
+child process started successfully, parent exiting
+
+[root@localhost mongodb-linux-x86_64-3.2.5]# ./bin/mongod --dbpath /home/m18 --logpath /home/mlog/m18.log --fork --port 27018 --replSet rs2 --smallfiles
+about to fork child process, waiting until server is ready for connections.
+forked process: 67306
+child process started successfully, parent exiting
+
+[root@localhost mongodb-linux-x86_64-3.2.5]# ./bin/mongod --dbpath /home/m19 --logpath /home/mlog/m19.log --fork --port 27019 --replSet rs2 --smallfiles
+about to fork child process, waiting until server is ready for connections.
+forked process: 67332
+child process started successfully, parent exiting
+
+
+> var rsconf = {     _id:'rs2',     members:     [         {_id:0,         host:'192.168.1.211:27017'         },         {_id:1,         host:'192.168.1.211:27018'         },         {_id:2,         host:'192.168.1.211:27019'         }     ] }
+
+> printjson(rsconf)
+{
+	"_id" : "rs2",
+	"members" : [
+		{
+			"_id" : 0,
+			"host" : "192.168.1.211:27017"
+		},
+		{
+			"_id" : 1,
+			"host" : "192.168.1.211:27018"
+		},
+		{
+			"_id" : 2,
+			"host" : "192.168.1.211:27019"
+		}
+	]
+}
+> rs.initiate(rsconf)
+{ "ok" : 1 }
+rs2:OTHER>rs.status()
+{
+	"set" : "rs2",
+	"date" : ISODate("2016-04-22T05:21:06.604Z"),
+	"myState" : 1,
+	"term" : NumberLong(1),
+	"heartbeatIntervalMillis" : NumberLong(2000),
+	"members" : [
+		{
+			"_id" : 0,
+			"name" : "192.168.1.211:27017",
+			"health" : 1,
+			"state" : 1,
+			"stateStr" : "PRIMARY",
+			"uptime" : 1825,
+			"optime" : {
+				"ts" : Timestamp(1461302412, 2),
+				"t" : NumberLong(1)
+			},
+			"optimeDate" : ISODate("2016-04-22T05:20:12Z"),
+			"infoMessage" : "could not find member to sync from",
+			"electionTime" : Timestamp(1461302412, 1),
+			"electionDate" : ISODate("2016-04-22T05:20:12Z"),
+			"configVersion" : 1,
+			"self" : true
+		},
+		{
+			"_id" : 1,
+			"name" : "192.168.1.211:27018",
+			"health" : 1,
+			"state" : 2,
+			"stateStr" : "SECONDARY",
+			"uptime" : 64,
+			"optime" : {
+				"ts" : Timestamp(1461302412, 2),
+				"t" : NumberLong(1)
+			},
+			"optimeDate" : ISODate("2016-04-22T05:20:12Z"),
+			"lastHeartbeat" : ISODate("2016-04-22T05:21:06.364Z"),
+			"lastHeartbeatRecv" : ISODate("2016-04-22T05:21:05.783Z"),
+			"pingMs" : NumberLong(0),
+			"syncingTo" : "192.168.1.211:27017",
+			"configVersion" : 1
+		},
+		{
+			"_id" : 2,
+			"name" : "192.168.1.211:27019",
+			"health" : 1,
+			"state" : 2,
+			"stateStr" : "SECONDARY",
+			"uptime" : 64,
+			"optime" : {
+				"ts" : Timestamp(1461302412, 2),
+				"t" : NumberLong(1)
+			},
+			"optimeDate" : ISODate("2016-04-22T05:20:12Z"),
+			"lastHeartbeat" : ISODate("2016-04-22T05:21:06.364Z"),
+			"lastHeartbeatRecv" : ISODate("2016-04-22T05:21:05.783Z"),
+			"pingMs" : NumberLong(0),
+			"syncingTo" : "192.168.1.211:27017",
+			"configVersion" : 1
+		}
+	],
+	"ok" : 1
+}
+
+//删除
+rs2:PRIMARY> rs.remove('192.168.1.211:27018');
+//添加不起作用
+rs.add('192.168.1.211:27018');
+//不能多次初始化一个变量=>例如var rsconf ={};
+如果删掉secondary可以使用rs.reconf(变量);重新配置
+给primary赋值,secondary也可以查看到 但是要注意not master and slaveOk=false，使用rs.slaveOK()解决
+rs2:PRIMARY> show dbs
+local  0.000GB
+rs2:PRIMARY> use test
+switched to db test
+rs2:PRIMARY> db.stu.insert({title:'hello'})
+WriteResult({ "nInserted" : 1 })
+rs2:PRIMARY> show dbs;
+local  0.000GB
+test   0.000GB
+rs2:PRIMARY> show collections;
+stu
+rs2:PRIMARY> db.stu.find()
+{ "_id" : ObjectId("5719b78b5bddae62f1ef164e"), "title" : "hello" }
+rs2:PRIMARY> exit
+bye
+[root@localhost mongodb-linux-x86_64-3.2.5]# ./bin/mongo --port 27018
+MongoDB shell version: 3.2.5
+connecting to: 127.0.0.1:27018/test
+
+
+rs2:SECONDARY> use test
+switched to db test
+rs2:SECONDARY> db.stu.find()
+Error: error: { "ok" : 0, "errmsg" : "not master and slaveOk=false", "code" : 13435 }
+rs2:SECONDARY> rs.slaveok()
+2016-04-21T22:35:30.497-0700 E QUERY    [thread1] TypeError: rs.slaveok is not a function :
+@(shell):1:1
+
+rs2:SECONDARY> rs.slaveOk();
+rs2:SECONDARY> db.stu.find()
+{ "_id" : ObjectId("5719b78b5bddae62f1ef164e"), "title" : "hello" }
+rs2:SECONDARY> 
+
+//replication基本配置完成 剩下的可以rs.help()查看帮助
+
+
+
+简单的自动启动脚本
+vim start.sh
+#!/bin/bash
+IP=192.168.1.211
+NA=rs2
+
+pkill -9 mongo
+rm -rf /home/m*
+
+mkdir -p /home/m17 /home/m18 /home/m19 /home/mlog
+
+/usr/local/mongodb/mongodb-linux-x86_64-3.2.5/bin/mongod --dbpath /home/m17 --logpath /home/mlog/m17.log --port 27017 --fork --smallfiles --replSet ${NA}
+
+/usr/local/mongodb/mongodb-linux-x86_64-3.2.5/bin/mongod --dbpath /home/m18 --logpath /home/mlog/m18.log --port 27018 --fork --smallfiles --replSet ${NA}
+
+/usr/local/mongodb/mongodb-linux-x86_64-3.2.5/bin/mongod --dbpath /home/m19 --logpath /home/mlog/m19.log --port 27019 --fork --smallfiles --replSet ${NA}
+
+/usr/local/mongodb/mongodb-linux-x86_64-3.2.5/bin/mongo <<EOF
+use admin
+var rsconf = {
+_id:'rs2',
+members:[
+{_id:0,host:'${IP}:27017'},
+{_id:1,host:'${IP}:27018'},
+{_id:2,host:'${IP}:27019'}
+]
+}
+rs.initiate(rsconf);
+EOF
+
+============================================================================================
+mongos路由器  => configsvr => shard1 shard2 ....
+
+configsvr不存储真正的数据,存储的是meta信息,即'某条数据在哪个片上'
+
+mongos查询某条数据的时候,先要找configsvr,询问得到该数据在哪个shard上
+
+分片要如下要素:
+1:要有N(N>=2)个mongod服务做片节点
+2.要有configsvr维护meta信息
+3.要设定好数据的分片规则
+4.要启动mongos做路由
+
+
+未完成的事: 复习shell脚本  论文method 实验没跑  复习项目代码
+=============================================================================================
+[root@localhost mongodb-linux-x86_64-3.2.5]# pkill -9 mongo
+[root@localhost mongodb-linux-x86_64-3.2.5]# rm -rf /home/m*
+[root@localhost mongodb-linux-x86_64-3.2.5]# ps aux |grep 'mongo'
+root      71396  0.0  0.0 112660   960 pts/2    R+   23:50   0:00 grep --color=auto mongo
+[root@localhost mongodb-linux-x86_64-3.2.5]# mkdir -p /home/m17 /home/m18 /home/m20 /home/mlog
+[root@localhost mongodb-linux-x86_64-3.2.5]# ./bin/mongod --dbpath /home/m17/ --logpath /home/mlog/m17.log --fork --port 27017 --smallfiles
+about to fork child process, waiting until server is ready for connections.
+forked process: 71550
+child process started successfully, parent exiting
+[root@localhost mongodb-linux-x86_64-3.2.5]# ./bin/mongod --dbpath /home/m18/ --logpath /home/mlog/m18.log --fork --port 27018 --smallfiles
+about to fork child process, waiting until server is ready for connections.
+forked process: 71587
+child process started successfully, parent exiting
+[root@localhost mongodb-linux-x86_64-3.2.5]# ./bin/mongod --dbpath /home/m20/ --logpath /home/mlog/m20.log --fork --port 27020 --configsvr
+about to fork child process, waiting until server is ready for connections.
+forked process: 71854
+child process started successfully, parent exiting
+[root@localhost mongodb-linux-x86_64-3.2.5]# ./bin/mongos --logpath /home/mlog/m30.log --port 30000 --configdb 192.168.1.211:27020 --fork
+2016-04-21T23:56:33.976-0700 W SHARDING [main] Running a sharded cluster with fewer than 3 config servers should only be done for testing purposes and is not recommended for production.
+about to fork child process, waiting until server is ready for connections.
+forked process: 71901
+child process started successfully, parent exiting
+[root@localhost mongodb-linux-x86_64-3.2.5]# 
+
+=================================================
+
+
+[root@localhost mongodb-linux-x86_64-3.2.5]# ps aux |grep mongo
+root      71550  0.1  0.8 343984 33600 ?        Sl   23:51   0:00 ./bin/mongod --dbpath /home/m17/ --logpath /home/mlog/m17.log --fork --port 27017 --smallfiles
+root      71587  0.1  0.8 343972 33588 ?        Sl   23:52   0:00 ./bin/mongod --dbpath /home/m18/ --logpath /home/mlog/m18.log --fork --port 27018 --smallfiles
+root      71854  0.2  0.9 371472 37612 ?        Sl   23:54   0:00 ./bin/mongod --dbpath /home/m20/ --logpath /home/mlog/m20.log --fork --port 27020 --configsvr
+root      71901  0.0  0.1 270740  7572 ?        Sl   23:56   0:00 ./bin/mongos --logpath /home/mlog/m30.log --port 30000 --configdb 192.168.1.211:27020 --fork
+root      71948  0.0  0.0 112660   960 pts/2    R+   23:59   0:00 grep --color=auto mongo
+=============================================================
+
+//增加分片
+[root@localhost mongodb-linux-x86_64-3.2.5]# ./bin/mongo --port 30000
+MongoDB shell version: 3.2.5
+connecting to: 127.0.0.1:30000/test
+mongos> sh.addShard('192.168.1.211:27017');
+{ "shardAdded" : "shard0000", "ok" : 1 }
+mongos> sh.addShard('192.168.1.211:27018');
+{ "shardAdded" : "shard0001", "ok" : 1 }
+mongos> sh.status()
+--- Sharding Status --- 
+  sharding version: {
+	"_id" : 1,
+	"minCompatibleVersion" : 5,
+	"currentVersion" : 6,
+	"clusterId" : ObjectId("5719cb22830db9361951c90b")
+}
+  shards:
+	{  "_id" : "shard0000",  "host" : "192.168.1.211:27017" }
+	{  "_id" : "shard0001",  "host" : "192.168.1.211:27018" }
+  active mongoses:
+	"3.2.5" : 1
+  balancer:
+	Currently enabled:  yes
+	Currently running:  no
+	Failed balancer rounds in last 5 attempts:  0
+	Migration Results for the last 24 hours: 
+		No recent migrations
+  databases:
+
+=============================================================================================== 
+mongos> sh.status()
+--- Sharding Status --- 
+  sharding version: {
+	"_id" : 1,
+	"minCompatibleVersion" : 5,
+	"currentVersion" : 6,
+	"clusterId" : ObjectId("5719cb22830db9361951c90b")
+}
+  shards:
+	{  "_id" : "shard0000",  "host" : "192.168.1.211:27017" }
+	{  "_id" : "shard0001",  "host" : "192.168.1.211:27018" }
+  active mongoses:
+	"3.2.5" : 1
+  balancer:
+	Currently enabled:  yes
+	Currently running:  no
+	Failed balancer rounds in last 5 attempts:  0
+	Migration Results for the last 24 hours: 
+		No recent migrations
+  databases:
+	{  "_id" : "test",  "primary" : "shard0000",  "partitioned" : false }
+
+mongos> sh.enableSharding('shop')
+{ "ok" : 1 }
+mongos> sh.status()
+
+==========================
+mongos> sh.shardCollection('shop.goods',{goods_id:1});
+{ "collectionsharded" : "shop.goods", "ok" : 1 }
+mongos> sh.status()
+--- Sharding Status --- 
+  sharding version: {
+	"_id" : 1,
+	"minCompatibleVersion" : 5,
+	"currentVersion" : 6,
+	"clusterId" : ObjectId("5719cb22830db9361951c90b")
+}
+  shards:
+	{  "_id" : "shard0000",  "host" : "192.168.1.211:27017" }
+	{  "_id" : "shard0001",  "host" : "192.168.1.211:27018" }
+  active mongoses:
+	"3.2.5" : 1
+  balancer:
+	Currently enabled:  yes
+	Currently running:  no
+	Failed balancer rounds in last 5 attempts:  0
+	Migration Results for the last 24 hours: 
+		No recent migrations
+  databases:
+	{  "_id" : "test",  "primary" : "shard0000",  "partitioned" : false }
+	{  "_id" : "shop",  "primary" : "shard0001",  "partitioned" : true }
+		shop.goods
+			shard key: { "goods_id" : 1 }
+			unique: false
+			balancing: true
+			chunks:
+				shard0001	1
+			{ "goods_id" : { "$minKey" : 1 } } -->> { "goods_id" : { "$maxKey" : 1 } } on : shard0001 Timestamp(1, 0) 
+
+========================================================================================
+插入数据以后发现都集中在port 27018端口的 shard上
+这是因为 mongodb不是从单片文档的级别绝对平均的散落在各个片上
+而是N篇文章，形成一个块”chunk“
+优先放在某个片上，当这个片上的chunk，比另一个片上的chunk,区别比较大的时候,(>=3)，会把本片上的chunk,移到另外一个片上,已chunk为单位
+维护片之间的数据平衡
+
+
+===========================================================================================
+mongos> show dbs
+config  0.001GB
+shop    0.005GB
+test    0.000GB
+mongos> use config
+switched to db config
+mongos> show collections;
+changelog
+chunks
+collections
+databases
+lockpings
+locks
+mongos
+settings
+shards
+tags
+version
+//修改chunk大小
+mongos> db.settings.save({_id:'chunksize'},{$set:{value:1}})
+
+问: 为什么插入了10万条数据,才2个chunk?
+答: 说明chunk比较大(默认是64M)
+在config数据库中,修改chunksize的值.
+
+问: 既然优先往某个片上插入,当chunk失衡时,再移动chunk,
+自然,随着数据的增多,shard的实例之间,有chunk来回移动的现象,这将带来什么问题?
+答: 服务器之间IO的增加, 
+
+接上问: 能否我定义一个规则, 某N条数据形成1个块,预告分配M个chunk,
+M个chunk预告分配在不同片上. 
+以后的数据直接入各自预分配好的chunk,不再来回移动?
+
+答: 能, 手动预先分片!
+
+==========================================================================
+//开始手动分片
+//建立片键!!userid!!
+mongos> sh.shardCollection('shop.user',{userid:1})
+{ "collectionsharded" : "shop.user", "ok" : 1 }
+mongos> sh.status()
+--- Sharding Status --- 
+  sharding version: {
+	"_id" : 1,
+	"minCompatibleVersion" : 5,
+	"currentVersion" : 6,
+	"clusterId" : ObjectId("5719cb22830db9361951c90b")
+}
+  shards:
+	{  "_id" : "shard0000",  "host" : "192.168.1.211:27017" }
+	{  "_id" : "shard0001",  "host" : "192.168.1.211:27018" }
+  active mongoses:
+	"3.2.5" : 1
+  balancer:
+	Currently enabled:  yes
+	Currently running:  no
+	Failed balancer rounds in last 5 attempts:  0
+	Migration Results for the last 24 hours: 
+		1 : Success
+  databases:
+	{  "_id" : "test",  "primary" : "shard0000",  "partitioned" : false }
+	{  "_id" : "shop",  "primary" : "shard0001",  "partitioned" : true }
+		shop.goods
+			shard key: { "goods_id" : 1 }
+			unique: false
+			balancing: true
+			chunks:
+				shard0000	1
+				shard0001	2
+			{ "goods_id" : { "$minKey" : 1 } } -->> { "goods_id" : 2 } on : shard0000 Timestamp(2, 0) 
+			{ "goods_id" : 2 } -->> { "goods_id" : 12 } on : shard0001 Timestamp(2, 1) 
+			{ "goods_id" : 12 } -->> { "goods_id" : { "$maxKey" : 1 } } on : shard0001 Timestamp(1, 3) 
+		shop.user
+			shard key: { "userid" : 1 }
+			unique: false
+			balancing: true
+			chunks:
+				shard0001	1
+			{ "userid" : { "$minKey" : 1 } } -->> { "userid" : { "$maxKey" : 1 } } on : shard0001 Timestamp(1, 0) 
+
+//手动分片使用splitAt('针对的表eg: shop.user');
+
+mongos> use shop
+switched to db shop
+mongos> for(var i=0; i<40; i++){
+... sh.splitAt('shop.user',{userid:i*1000})}
+{ "ok" : 1 }
+
+mongos> sh.status()
+--- Sharding Status --- 
+  sharding version: {
+	"_id" : 1,
+	"minCompatibleVersion" : 5,
+	"currentVersion" : 6,
+	"clusterId" : ObjectId("5719cb22830db9361951c90b")
+}
+  shards:
+	{  "_id" : "shard0000",  "host" : "192.168.1.211:27017" }
+	{  "_id" : "shard0001",  "host" : "192.168.1.211:27018" }
+  active mongoses:
+	"3.2.5" : 1
+  balancer:
+	Currently enabled:  yes
+	Currently running:  no
+	Failed balancer rounds in last 5 attempts:  0
+	Migration Results for the last 24 hours: 
+		6 : Success
+  databases:
+	{  "_id" : "test",  "primary" : "shard0000",  "partitioned" : false }
+	{  "_id" : "shop",  "primary" : "shard0001",  "partitioned" : true }
+		shop.goods
+			shard key: { "goods_id" : 1 }
+			unique: false
+			balancing: true
+			chunks:
+				shard0000	1
+				shard0001	2
+			{ "goods_id" : { "$minKey" : 1 } } -->> { "goods_id" : 2 } on : shard0000 Timestamp(2, 0) 
+			{ "goods_id" : 2 } -->> { "goods_id" : 12 } on : shard0001 Timestamp(2, 1) 
+			{ "goods_id" : 12 } -->> { "goods_id" : { "$maxKey" : 1 } } on : shard0001 Timestamp(1, 3) 
+		shop.user
+			shard key: { "userid" : 1 }
+			unique: false
+			balancing: true
+			chunks:
+				shard0000	5
+				shard0001	36
+			too many chunks to print, use verbose if you want to force print
+
+
+//replication shard整合
+//mongos -> configsvr  用路由连上这个meta存储的端口 ,addShared("rs数字/IP地址：端口"); //在不同的ip上做replication，路由+meta链接的是shard{XX}的主端口(PRIMARY).
+//分片完成
+
+
+
+//php+mongodb整合短网址
+     1.将得到的一个数字转换成64进制的数
+     2.mongodb中要实现自增长的数列
+     eg:若在mongo中实现这个可以用
+     insert({_id:1,sn:0})
+     findAndModify({query:{_id:1},update:{$inc:{sn:1}}})
+     
+     
+     #php中的实现     
+  $m = new MongoClient('mongodb://192.168.1.211:27017');
+        $db = $m->test;
+    $c = $db->selectCollection('cnt');
+  //  var_dump($c);
+   $temp = $c->findAndModify(array('_id'=>1),array('$inc'=>array('sn'=>1)));
+      var_dump($temp);
+        echo 'Ok';
+    //  $new = array('title'=>'today is sunday','xinqing'=>'very good');
+//      $c->insert($new); 
+  //  echo '插入成功';
+  
+  
+  #mongodb中的实现
+ > db.cnt.drop()
+true
+> db.cnt.insert({_id:1,sn:0})
+WriteResult({ "nInserted" : 1 })
+> db.cnt.findAndModify({query:{_id:1},update:{$inc:{sn:1}}})
+
