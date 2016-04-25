@@ -1,0 +1,214 @@
+4.21 下午又因为助教浪费了时间，由于阿里云到期了(低配的用起来就是XXX)，换了新浪sae重新弄了下配置,微信公共号换了下地址，重新弄了代码，匆匆赶回望江，继续mongodb, 看了游标操作,让我感觉到了这个数据库的强大之处..继续学习..实习+论文一再搁浅,我的内心是崩溃加焦虑的..
+
+>for(var mycursor=db.bar.find({_id:{$lte:10}});mycursor.next();){ printjson(mycursor.next()) }
+
+> var mycursor = db.bar.find({_id:{$lte:5}})
+> mycursor.forEach(function(obj){printjson(obj)})
+//分页的时候用
+var mycursor = db.bar.find().skip(50);
+mycursor.forEach(function(obj){
+printjson(obj)
+})
+//不要随意使用toArray()
+//会把所有的行立即以对象的方式组织在内存
+//可以在取出少数几行的时候用这个功能
+var mycursor = db.bar.find().skip(850).limit(10)
+mycursor.toArray();
+
+var mycursor = db.bar.find().skip(850).limit(10)
+mycursor.forEach(function(obj){
+printjson(obj.content)
+})
+
+//使用explain()类似mysql的执行计划(explain sql)
+db.stu.find({sn:99}).explain();
+//查询结果
+{
+	"queryPlanner" : {
+		"plannerVersion" : 1,
+		"namespace" : "test.stu",
+		"indexFilterSet" : false,
+		"parsedQuery" : {
+			"sn" : {
+				"$eq" : 99
+			}
+		},
+		"winningPlan" : {
+			"stage" : "COLLSCAN",
+			"filter" : {
+				"sn" : {
+					"$eq" : 99
+				}
+			},
+			"direction" : "forward"
+		},
+		"rejectedPlans" : [ ]
+	},
+	"serverInfo" : {
+		"host" : "localhost.localdomain",
+		"port" : 27017,
+		"version" : "3.2.5",
+		"gitVersion" : "34e65e5383f7ea1726332cb175b73077ec4a1b02"
+	},
+	"ok" : 1
+}
+
+
+//设置索引
+ db.stu.ensureIndex({sn:1})
+
+//再次查询
+
+db.stu.find({sn:99}).explain();
+{
+	"queryPlanner" : {
+		"plannerVersion" : 1,
+		"namespace" : "test.stu",
+		"indexFilterSet" : false,
+		"parsedQuery" : {
+			"sn" : {
+				"$eq" : 99
+			}
+		},
+		"winningPlan" : {
+			"stage" : "FETCH",
+			"inputStage" : {
+				"stage" : "IXSCAN",
+				"keyPattern" : {
+					"sn" : 1
+				},
+				"indexName" : "sn_1",
+				"isMultiKey" : false,
+				"isUnique" : false,
+				"isSparse" : false,
+				"isPartial" : false,
+				"indexVersion" : 1,
+				"direction" : "forward",
+				"indexBounds" : {
+					"sn" : [
+						"[99.0, 99.0]"
+					]
+				}
+			}
+		},
+		"rejectedPlans" : [ ]
+	},
+	"serverInfo" : {
+		"host" : "localhost.localdomain",
+		"port" : 27017,
+		"version" : "3.2.5",
+		"gitVersion" : "34e65e5383f7ea1726332cb175b73077ec4a1b02"
+	},
+	"ok" : 1
+}
+//查看索引
+//要注意索引是建立在牺牲写入和更改等操作的基础上的
+db.stu.getIndexes()
+[
+	{
+		"v" : 1,
+		"key" : {
+			"_id" : 1
+		},
+		"name" : "_id_",
+		"ns" : "test.stu"
+	},
+	{
+		"v" : 1,
+		"key" : {
+			"sn" : 1
+		},
+		"name" : "sn_1",
+		"ns" : "test.stu"
+	}
+]
+
+//删除索引
+>db.stu.dropIndex({name:-1})
+
+//设置多列索引
+
+>db.shop.ensureIndex({'spc.area':1})
+//设置唯一索引
+> db.shop.ensureIndex({'spc.area':1},{unique:true}}
+
+//稀疏索引
+> db.shop.ensureIndex({email:1},{sparse:true})
+//会把数据中没有email列的忽略,而不是像普通索引将没有email列的当做null查询出来
+
+
+//哈希索引对于顺序和范围查询都不如B-tree好，适用于数据散列分布的
+db.XX.ensureIndex({XX:'hashed'})
+//索引重建
+db.xx.reIndexes();
+
+
+//用户权限认证,注意mongo是角色跟随库的
+
+use admin
+switched to db admin
+> db.auth('dba','123456')
+1
+> show dbs
+admin  0.000GB
+local  0.000GB
+test   0.000GB
+> use test
+switched to db test
+> db.createUser(
+... {
+... user:'test',
+... pwd:'123456',
+... roles:[
+... {role:'readWrite',db:'test'}
+... ]
+... }
+... )
+Successfully added user: {
+	"user" : "test",
+	"roles" : [
+		{
+			"role" : "readWrite",
+			"db" : "test"
+		}
+	]
+}
+> db.auth('test','123456')
+1
+> show dbs
+admin  0.000GB
+local  0.000GB
+test   0.000GB
+> show collections;
+bar
+shop
+stu
+user
+> db.shop.find();
+{ "_id" : ObjectId("5718b1b3efff6b9f31611b34"), "name" : "Nokia", "spc" : { "weight" : 120, "area" : "taiwan" } }
+{ "_id" : ObjectId("5718b1c3efff6b9f31611b35"), "name" : "sanxing", "spc" : { "weight" : 220, "area" : "hanguo" } }
+{ "_id" : ObjectId("5718b643efff6b9f31611b36"), "name" : "Nokia", "spc" : { "weight" : 120, "area" : "taiwan" } }
+{ "_id" : ObjectId("5718b645efff6b9f31611b37"), "name" : "Nokia", "spc" : { "weight" : 120, "area" : "taiwan" } }
+> 
+
+ pkill -9 mongo
+ ./bin/mongod --dbpath /home/m17 --logpath /home/mlog/m17.log --fork --auth 权限登录
+//导出csv格式的数据 
+ ./bin/mongoexport -d test -c stu -f sn,name -q '{sn:{$lte:10}}' --csv  -o ./test.stu
+ //导入csv格式数据
+ ./bin/mongoimport -d test -c brid4 --type csv --headerline --file ./test.stu //注意headerline！！！
+
+ //导出json格式数据
+  ./bin/mongoexport -d test -c stu -f sn,name -q '{sn:{$lte:10}}'  -o ./test.stu.json
+//导入json数据
+ [root@localhost mongodb-linux-x86_64-3.2.5]# ./bin/mongoimport -d test -c animal --type json --file ./test.stu.json
+
+//导出二进制文件
+./bin/mongodump -d test //整个库,  -c tea 某个collection
+//恢复二进制文件
+./bin/mongorestore -d test --dir dump/test/
+
+
+复习了session类重写 session_set_save_handle("sessRead","sessWrite","sessGC","sessDelete","sessBegin","sessEnd")
+session会话技术,能否持久化(如果要持久需要配置2个地方,一个是cookie时间,一个是垃圾回收时间)
+如果禁用了cookie，一般认为是不可以使用session的。但可以通过(url,post等传送)
