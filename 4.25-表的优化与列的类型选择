@@ -108,4 +108,158 @@ Enum列的说明
 4: 排序也无法优化.
 5: 必须回行.就是说 通过索引拿到数据位置,必须回到表中取数据
 
+=======================================================================================
+ 2.2 在多列上建立索引后,查询哪个列,索引都将发挥作用
+误: 多列索引上,索引发挥作用,需要满足左前缀要求.
+以 index(a,b,c) 为例,
+语句	索引是否发挥作用
+Where a=3	是,只使用了a列
+Where a=3 and b=5 	是,使用了a,b列
+Where a=3 and b=5 and c=4	是,使用了abc
+Where b=3  /  where c=4	否
+Where a=3 and c=4	a列能发挥索引,c不能
+Where a=3 and b>10 and c=7	A能利用,b能利用, C不能利用
+同上,where a=3 and b like ‘xxxx%’ and c=7	A能用,B能用,C不能用
+
+ 
+	
+为便于理解, 假设ABC各10米长的木板, 河面宽30米.
+全值索引是则木板长10米,
+Like,左前缀及范围查询, 则木板长6米,
+
+自己拼接一下,能否过河对岸,就知道索引能否利用上.
+如上例中, where a=3 and b>10, and c=7,
+A板长10米,A列索引发挥作用
+A板正常接B板, B板索引发挥作用
+B板短了,接不到C板, C列的索引不发挥作用.
+
+多列索引经典题目:
+http://www.zixue.it/thread-9218-1-4.html
+
+假设某个表有一个联合索引（c1,c2,c3,c4）一下——只能使用该联合索引的c1,c2,c3部分
+A where c1=x and c2=x and c4>x and c3=x 
+B where c1=x and c2=x and c4=x order by c3
+C where c1=x and c4= x group by c3,c2
+D where c1=x and c5=x order by c2,c3
+E where c1=x and c2=x and c5=? order by c2,c3
+
+create table t4 (
+c1 tinyint(1) not null default 0,
+c2 tinyint(1) not null default 0,
+c3 tinyint(1) not null default 0,
+c4 tinyint(1) not null default 0,
+c5 tinyint(1) not null default 0,
+index c1234(c1,c2,c3,c4)
+);
+insert into t4 values (1,3,5,6,7),(2,3,9,8,3),(4,3,2,7,5);
+
+对于A:  *mysql在不影响语意的情况下 会给语句做优化,所以发生下面这种情况*
+c1=x and c2=x and c4>x and c3=x  <==等价==> c1=x and c2=x and c3=x and c4>x
+因此 c1,c2,c3,c4都能用上. 如下:
+mysql> explain select * from t4 where c1=1 and c2=2 and c4>3 and c3=3 \G
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: t4
+         type: range
+possible_keys: c1234
+          key: c1234
+      key_len: 4 #可以看出c1,c2,c3,c4索引都用上
+          ref: NULL
+         rows: 1
+        Extra: Using where 
+
+对于B: select * from t4 where c1=1 and c2=2 and c4=3 order by c3  *沿着c3有序的一边查找一边验证c4,*
+c1 ,c2索引用上了,在c2用到索引的基础上,c3是排好序的,因此不用额外排序.
+而c4没发挥作用.
+mysql> explain select * from t4 where c1=1 and c2=2 and c4=3 order by c3 \G
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: t4
+         type: ref
+possible_keys: c1234
+          key: c1234
+      key_len: 2
+          ref: const,const
+         rows: 1
+        Extra: Using where
+1 row in set (0.00 sec)
+
+mysql> explain select * from t4 where c1=1 and c2=2 and c4=3 order by c5 \G
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: t4
+         type: ref
+possible_keys: c1234
+          key: c1234
+      key_len: 2
+          ref: const,const
+         rows: 1
+        Extra: Using where; Using filesort
+1 row in set (0.00 sec)
+
+对于 C: 只用到c1索引,因为group by c3,c2的顺序无法利用c2,c3索引
+mysql> explain select * from t4 where c1=1 and c4=2 group by c3,c2 \G
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: t4
+         type: ref
+possible_keys: c1234
+          key: c1234
+      key_len: 1 #只用到c1,因为先用c3后用c2分组,导致c2,c3索引没发挥作用
+          ref: const
+         rows: 1
+        Extra: Using where; Using temporary; Using filesort
+1 row in set (0.00 sec)
+
+mysql> explain select * from t4 where c1=1 and c4=2 group by c2,c3 \G
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: t4
+         type: ref
+possible_keys: c1234
+          key: c1234
+      key_len: 1
+          ref: const
+         rows: 1
+        Extra: Using where
+1 row in set (0.00 sec)
+
+D语句: C1确定的基础上,c2是有序的,C2之下C3是有序的,因此c2,c3发挥的排序的作用.
+因此,没用到filesort
+mysql> explain select * from t4 where c1=1 and c5=2 order by c2,c3 \G  
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: t4
+         type: ref
+possible_keys: c1234
+          key: c1234
+      key_len: 1
+          ref: const
+         rows: 1
+        Extra: Using where
+1 row in set (0.00 sec)
+
+E: 这一句等价与 elect * from t4 where c1=1 and c2=3 and c5=2 order by c3; 
+因为c2的值既是固定的,参与排序时并不考虑
+
+mysql> explain select * from t4 where c1=1 and c2=3 and c5=2 order by c2,c3 \G
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: t4
+         type: ref
+possible_keys: c1234
+          key: c1234
+      key_len: 2
+          ref: const,const
+         rows: 1
+        Extra: Using where
+1 row in set (0.00 sec)
+
 
