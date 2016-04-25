@@ -17,3 +17,110 @@ ccc 7 8 9
 270 0 0
 
 一个正则表达式,一个处理方式,最后在输出变量.
+
+
+====================================================================
+启动memcache
+[root@localhost memcached]# ./bin/memcached -m 512 -p 11211 -u nobody -d
+[root@localhost memcached]# ps aux |grep mem
+nobody   104400  0.0  0.0 315944  1948 ?        Ssl  10:15   0:00 ./bin/memcached -m 64 -p 11211 -u nobody -vvv -d
+root     127161  0.0  0.0 112660   960 pts/3    R+   22:08   0:00 grep --color=auto mem
+
+做观察服务器压力的测试
+模拟随机选取3万条热数据
+取出后存储在memcached
+生命周期为5分钟
+同时调整ab参数,尽量在1分钟内完成缓存创建
+
+$id = 1300000 + mt_rand(0,300000);
+$sql= 'select id,name,brief,addres from lx_com where id='.$id;
+
+$mem = new memcache();
+$mem->pconnect('localhost');
+
+if(($com = $mem->get($sql))===false){
+
+ $conn = mysql_connect('127.0.0.1','root','123456');
+ mysql_query('use big_data',$conn);
+ mysql_query('set names utf8',$conn);
+ 
+ $rs = mysql_query($sql,$conn);
+ $com = mysql_fetch_assoc($rs);
+ $mem->add($sql,$com,false,100);
+
+}
+print_r($com)
+
+
+
+apache下有ab测试
+[root@localhost html]# ab -c 50 -n 20000 http://192.168.1.211/index.php
+This is ApacheBench, Version 2.3 <$Revision: 1430300 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking 192.168.1.211 (be patient)
+Completed 2000 requests
+Completed 4000 requests
+Completed 6000 requests
+Completed 8000 requests
+Completed 10000 requests
+Completed 12000 requests
+Completed 14000 requests
+Completed 16000 requests
+Completed 18000 requests
+Completed 20000 requests
+Finished 20000 requests
+
+
+Server Software:        nginx/1.0.15
+Server Hostname:        192.168.1.211
+Server Port:            80
+
+Document Path:          /index.php
+Document Length:        57072 bytes
+
+Concurrency Level:      50
+Time taken for tests:   19.407 seconds
+Complete requests:      20000
+Failed requests:        1947
+   (Connect: 0, Receive: 0, Length: 1947, Exceptions: 0)
+Write errors:           0
+Total transferred:      1144397819 bytes
+HTML transferred:       1141437819 bytes
+Requests per second:    1030.54 [#/sec] (mean)
+Time per request:       48.518 [ms] (mean)
+Time per request:       0.970 [ms] (mean, across all concurrent requests)
+Transfer rate:          57585.51 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.2      0       2
+Processing:    24   48   9.2     45     158
+Waiting:       22   48   9.2     45     157
+Total:         25   48   9.2     46     159
+
+Percentage of the requests served within a certain time (ms)
+  50%     46
+  66%     47
+  75%     49
+  80%     51
+  90%     61
+  95%     64
+  98%     70
+  99%     77
+ 100%    159 (longest request)
+
+
+写一个shell每秒统计mysql的状态,并输出到status.txt
+tj.sh
+#!/bin/bash
+while true
+do
+
+mysqladmin -uroot -p123456 ext | awk '/Queries/{q=$4}/Threads_connected/{c=$5}/Threads_running/{r=$5}END{printf("%d %d %d\n",q,c,r)}' > status.txt
+
+sleep1
+
+
+
