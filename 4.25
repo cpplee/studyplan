@@ -1,5 +1,5 @@
 =============================================================================
-Mysql服务器调优之  
+Mysql服务器调优
 通过脚本,刷新观察status 
 【
 是否周期性故障或波动 
@@ -17,15 +17,14 @@ profiling分析语句以及explain分析语句
 =============================================================================
 【
 如果语句等待时间场(IO)
-
-
+调优服务器参数(如缓冲区,线程数)
 】
 【
 如果语句执行时间长
-
-
+1.表关联多(表的设计有缺陷)
+2.索引没有优化
+3.语句没有优化
 】
-
 
 
 =============================================================================
@@ -164,6 +163,118 @@ sleep1
 awk '{q=$1-last;last=$1}{print("%d %d %d\n",q,$2,$3)}' status.txt
 得到每秒增加的请求数量
 将数据导入Excel生成折线图或者其他有利于分析峰值的图表,找出最大峰值的地方进行分析,改进!
+
+
+=============================================================================================================================
+show processlist的应用
+
+[root@localhost html]# mysql -uroot -p123456 -e 'show processlist \G'
+*************************** 1. row ***************************
+      Id: 58
+    User: root
+    Host: localhost
+      db: lush_info
+ Command: Sleep
+    Time: 3
+   State: 
+    Info: NULL
+Progress: 0.000
+*************************** 2. row ***************************
+      Id: 69
+    User: root
+    Host: localhost
+      db: NULL
+ Command: Query
+    Time: 0
+   State: NULL
+    Info: show processlist
+Progress: 0.000
+
+
+
+=================================================================================================
+设置一个统计processlist的脚本
+每秒执行10次
+#!/bin/bash
+while true
+do 
+mysql -uroot -p123456  -e 'show processlist \G' | grep State|uniq -c|sort -rn >>proce.txt
+usleep 100000
+done
+
+对得到的proce.txt more proce.txt | sort|uniq -c |sort -rn
+
+converting HEAP to MyISAM 查询结果太大时,把结果放在磁盘
+create tmp table 创建临时表(如group时存储中间结果)
+Copying to tmp table on disk 把内存临时表复制到磁盘
+locked 被其他锁锁住
+logging slow query 记录慢查询
+
+
+查询和size有关的全局变量
+MariaDB [lush_info]> show variables like '%size%';
+找到了tmp_table_size
+set global tmp_table_size=1024;
+set session tmp_table_size =1024;
+
+
+开启记录
+set profiling = 1;或者set profiling=on;
+show profiles;
+列出最近的每一次查询
+得到编号
+MariaDB [lush_info]> show profiles;
++----------+------------+--------------------+
+| Query_ID | Duration   | Query              |
++----------+------------+--------------------+
+|        1 | 0.08891241 | set names urf8     |
+|        2 | 0.00011046 | select * from user |
+|        3 | 0.00010988 | select * from user |
+|        4 | 0.00003976 | set names utf8     |
+|        5 | 0.00015125 | select * from user |
++----------+------------+--------------------+
+5 rows in set (0.00 sec)
+利用编号
+显示最近详细查询的分析
+MariaDB [lush_info]> show profile for query 2;
++----------------------+----------+
+| Status               | Duration |
++----------------------+----------+
+| starting             | 0.000026 |
+| checking permissions | 0.000003 |
+| Opening tables       | 0.000009 |
+| After opening tables | 0.000002 |
+| System lock          | 0.000003 |
+| Table lock           | 0.000001 |
+| After table lock     | 0.000003 |
+| init                 | 0.000009 |
+| optimizing           | 0.000004 |
+| statistics           | 0.000007 |
+| preparing            | 0.000005 |
+| executing            | 0.000001 |
+| Sending data         | 0.000024 |
+| end                  | 0.000002 |
+| query end            | 0.000002 |
+| closing tables       | 0.000003 |
+| freeing items        | 0.000002 |
+| updating status      | 0.000004 |
+| cleaning up          | 0.000001 |
++----------------------+----------+
+19 rows in set (0.02 sec)
+
+
+
+
+
+
+
+
+使用sysbench进行压力测试（事务压力测试）
+观察低效状态,然后去解决
+
+
+
+
 
 
 
