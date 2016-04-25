@@ -13,3 +13,7 @@ ccc 7 8 9
 268
 2
 1
+[root@localhost a]# mysqladmin -uroot -p123456 ext | awk '/Queries/{q=$4}/Threads_connected/{c=$5}/Threads_running/{r=$5}END{printf("%d %d %d\n",q,c,r)}'
+270 0 0
+
+一个正则表达式,一个处理方式,最后在输出变量.
