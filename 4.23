@@ -1,0 +1,97 @@
+
+4.23 为重庆新旺激光技术有限公司做了网站demo, 下午boss要论文,结果一个字没动...
+
+      翻译了一套国外响应式模板,后台加入php框架,整合初步架构,设计数据库...
+      
+      晚上继续最后的mongodb学习,关于group()的应用... {
+      
+      key:{}
+      cond:{},
+      reduce:function(curr,result){}
+      initial:{}
+      finalize:function(result){}
+      }
+      
+      #eg: 查询每个栏目最贵的商品价格,max()操作
+      
+      {
+      key:{cat_id:1},
+      cond:{},
+      reduce:function(curr,result){
+        result.cnt +=1;
+        result.sum +=curr.shop_price;
+      }
+      initial:{sum=0,cnt:0},
+      finalize:function(result){
+        result.avg = result.sum/result.cnt
+      }
+      }
+      
+      
+      
+      group()是不支持shard cluster的..无法进行分布式运算,这个时候需要 使用分布式的  
+      aggregate(),  2.4版本以后新增加的 mapReduce()
+      
+      db.goods.aggregate({
+      [{ $group:{_id:'$cat_id',total:{$sum:1}}}]
+      })
+      
+      
+      var map = function{
+      emit(this.cat_id,this.shop_price);
+      }
+      
+      var reduce = function(cat_id,all_price){
+       return Array.sum(all_price);
+      ]
+     
+     db.goods.mapReduce(map,reduce,{out:'res'});
+
+
+
+     map：显示把属于同一个组的数据,映射到一个数组里eg:cast_id:{xx,xx,xx,xx}
+     reduce:把数组(同一个组)的数据,进行计算
+
+
+
+
+复习mysql优化:
+
+1.show status 主要查看threads_running 有几个进行在工作
+Queries当前发生了多少次查询 
+Threads_connected 有多少线程进行了链接
+
+//awk的使用
+[root@localhost a]# vim score.txt
+[root@localhost a]# awk '{printf("%s\n",$0)}' score.txt
+aaa 1 2 3
+bbb 4 5 6
+ccc 7 8 9 
+[root@localhost a]# awk '{printf("%s\n",$1)}' score.txt
+aaa
+bbb
+ccc
+
+[root@localhost a]# awk '/a/{printf("%s\n",$1)}' score.txt
+aaa
+[root@localhost a]# awk '/b/{printf("%s\n",$0)}' score.txt
+bbb 4 5 6
+[root@localhost a]# mysqladmin -uroot -p123456 ext | awk '/Queries/{printf("%d ",$4)}'
+243 
+[root@localhost a]# mysqladmin -uroot -p123456 ext | awk '/Queries/{printf("%d ",$4)}'
+245 
+[root@localhost a]# 
+
+============================================================================
+查看服务器周期性变化
+0-24小时内
+利用memcache  ab 等做压力测试
+回顾memcache 
+内存存储机制
+数据过期与删除机制
+php操作memcached
+多服务器集群算法
+缓存无底洞效应
+缓存血崩
+老数据被踢现象
+=============================================================================
