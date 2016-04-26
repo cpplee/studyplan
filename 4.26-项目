@@ -59,3 +59,5 @@
             array($this->config['header'], $this->nowPage, $up_page, $down_page, $the_first, $link_page, $the_end, $this->totalRows, $this->totalPages),
             $this->config['theme']);
         return "{$page_str}";
+        
+        重定向错误页面.自定义错误模板
