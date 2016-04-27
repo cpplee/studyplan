@@ -113,3 +113,48 @@ yum install glib2-devel
 
 
 启动成功
+
+==========================================================================================================================
+
+2: 连接mysql_proxy,用mysql客户就可以,因为proxy是mysql的前端代理
+注意proxy的端口是4040
+mysql -h “proxy的IP” -P 4040 -u username -p password
+
+在连接上之后,做sql查询,却总是往某1台mysql server来发送------负载均衡没体现出来?
+答: 不是没体现出来.
+均衡不是体现在sql语句,一会请求mysqlA服,一会请求mysqlB服.
+均衡是体现”连接”的均衡上.,
+
+mysql_proxy会把连接mysql服务器的tcp/IP连接缓存进连接池,以提高性能.
+在缓存池里, 缓存的连接大致是平均分配在每台mysql服务器上.
+但具体的每一个连接,始终连某台服务器.
+
+
+./bin/mysql-proxy  \
+--proxy-backend-addresses=192.168.1.199:3306 \
+--proxy-read-only-backend-addresses=192.168.1.200:3306 \
+--proxy-lua-script=/usr/local/mysql-proxy/share/doc/mysql-proxy/rw-splitting.lua
+
+简写:
+./bin/mysql-proxy -b=192.168.0.199:3306 -r=192.168.0.200:3306 -s=/usr/local/mysql-proxy/share/doc/mysql-proxy/rw-splitting.lua  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
