@@ -1,0 +1,26 @@
+#主主复制   vim /etc/my.cnf
+
+
+在4.26主从复制上添加
+
+#server id(从)
+server-id=200
+
+#bin-log(新增)
+log-bin=mysql-bin
+binlog-format=mixed
+
+#relay log
+relay-log=mysql-relay
+
+#server id(主)
+server-id=199
+
+#bin-log
+log-bin=mysql-bin
+binlog-format=mixed
+
+#relay log(新增)
+relay-log=mysql-relay
+
+
