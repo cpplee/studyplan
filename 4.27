@@ -96,3 +96,11 @@ systemctl restart mariadb.service;
 还有观察你的中间件 amoeba
 
 
+mysql-proxy依赖libevent,lua,glib2等几个软件
+所以在安装之前先
+
+
+yum install lua-devel
+yum install glib2-devel
+
+
