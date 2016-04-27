@@ -24,5 +24,38 @@ binlog-format=mixed
 relay-log=mysql-relay
 
 systemctl restart mariadb.service #重启MariaDB
+每次都要用show master status   查看mster_log_file与master_log_pos的值根据实际情况来判断
+change master to
+master_host='192.168.1.199', 
+master_user='repl',
+master_password='repl',
+master_log_file='mysql-bin.000003',
+master_log_pos=416
 
+
+
+
+change master to
+master_host='192.168.1.200', 
+master_user='repl',
+master_password='repl',
+master_log_file='mysql-bin.000001',
+master_log_pos=416
+要注意主主复制的时候插入数据容易出现 (2个请求同时到达2台服务器)主键冲突
+
+如果是2台可以让
+一台服务器从 1,3,5,7
+另一台是2,4,6,8
+
+set session auto_increment_increment=2;#每步增长2
+set session auto_increment_offset=1;#从1开始增长
+
+set global auto_increment_increment=2;
+set global auto_increment_offset =1;
+
+set session auto_increment_increment=2;#每步增长2
+set session auto_increment_offset=2;#从1开始增长
+
+set global auto_increment_increment=2;
+set global auto_increment_offset =2;
 
