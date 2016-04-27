@@ -102,5 +102,14 @@ mysql-proxy依赖libevent,lua,glib2等几个软件
 
 yum install lua-devel
 yum install glib2-devel
+去官网下载源码或者其他安装方式
+
+弄清楚mysql-proxy在哪个端口,-P(4040)
+代理那几台服务器
+--proxy-backend-address=192.168.1.199:3306 --proxy-backend-address=192.168.1.200:3306 (后端地址host:port)
+
+[root@localhost mysql-proxy]# ./bin/mysql-proxy -P 192.168.1.199:4040 --proxy-backend-addresses=192.168.1.199:3306 --proxy-backend-addresses=192.168.1.200:3306
+2016-04-26 21:27:37: (critical) plugin proxy 0.8.3 started
 
 
+启动成功
