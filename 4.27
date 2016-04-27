@@ -87,3 +87,12 @@ read_only=1;
 这个时候需要重启mariadb
 systemctl restart mariadb.service;
 
+
+2.在php代码中写主从定义，比如1个主2个从db类变量
+在query里面进行语句判断,分别链接不同的mysql服务器
+
+2.用集群中间件
+比如官方的mysql_proxy
+还有观察你的中间件 amoeba
+
+
