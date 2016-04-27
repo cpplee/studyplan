@@ -79,3 +79,11 @@ set global auto_increment_offset =2;
 
 主主模式主要用在  防止主从模式的主服务器突然gg
 然后这时候可以使用主主的另外一台
+
+
+在主主复制的一台服务器中的my.cnf配置
+read_only=1;
+
+这个时候需要重启mariadb
+systemctl restart mariadb.service;
+
