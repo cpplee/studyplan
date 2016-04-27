@@ -50,12 +50,32 @@ master_log_pos=416
 set session auto_increment_increment=2;#每步增长2
 set session auto_increment_offset=1;#从1开始增长
 
+
+set session auto_increment_increment=2;
+set session auto_increment_offset=1;
 set global auto_increment_increment=2;
 set global auto_increment_offset =1;
 
 set session auto_increment_increment=2;#每步增长2
 set session auto_increment_offset=2;#从1开始增长
 
+
+set session auto_increment_increment=2;
+set session auto_increment_offset=2;
 set global auto_increment_increment=2;
 set global auto_increment_offset =2;
 
+
+如果后期需要增加服务器,这个办法就有限制了
+
+我们可以在业务逻辑上来解决
+比如在racle有sequnce序列
+序列每次访问,生成递增/递减的数据
+
+以redis为例,我们可以专门构建一个global:userid
+
+每次PHP插入Mysql前，incr->global:userid,得到一个不重复的userid
+
+
+主主模式主要用在  防止主从模式的主服务器突然gg
+然后这时候可以使用主主的另外一台
