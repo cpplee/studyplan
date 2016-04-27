@@ -23,4 +23,6 @@ binlog-format=mixed
 #relay log(新增)
 relay-log=mysql-relay
 
+systemctl restart mariadb.service #重启MariaDB
+
 
