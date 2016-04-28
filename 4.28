@@ -12,6 +12,36 @@ commit/rollback
 set session transaction isolation level read uncommitted; 脏读模式(能够读没有提交的数据)
 
 
+set session transaction isolation level read committed; 这种模式一方commit另一方就可以读取到,但是有可能这一方并没有commit
+
+
+set session transaction isolation level  repeateble read;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+配置nginx=====================================
+
+
+nginx信号控制
+
+kill INT PID
+
+px aux | grep nginx 
+kill -INT XXXX
 
 
 
