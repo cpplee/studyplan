@@ -54,3 +54,55 @@ netstat -anp  看到httpd在80端口
 ./sbin/nginx
 service php-fpm start
 解决
+
+
+
+==============================================================================
+查看php运行目录命令：
+which php
+/usr/bin/php
+
+查看php-fpm进程数：
+ps aux | grep -c php-fpm
+
+查看运行内存
+/usr/bin/php  -i|grep mem
+
+重启php-fpm
+/etc/init.d/php-fpm restart
+
+在phpinfo()输出内容可以看到php相关配置。
+Loaded Configuration File /etc/php.ini
+
+==============================
+
+首先要找到php-fpm.conf配置文件，查看pid的配置路径(不是安装路径)，然后把下面对应的地方改掉才能正常执行。
+
+[root@DO-SG-H1 ~]# ps aux | grep php-fpm   
+root     11799  0.0  0.0 103248   880 pts/0    S+   13:51   0:00 grep --color php-fpm
+root     11973  0.0  0.0 417748   964 ?        Ss   Jun01   0:20 php-fpm: master process (/etc/php-fpm.conf)
+
+cat /etc/php-fpm.conf
+看到
+pid = /var/run/php-fpm/php-fpm.pid
+
+php-fpm 启动：
+/usr/local/php/sbin/php-fpm
+php-fpm 关闭：
+kill -INT `cat /var/run/php-fpm/php-fpm.pid`
+php-fpm 重启：
+kill -USR2 `cat /var/run/php-fpm/php-fpm.pid`
+
+查看php-fpm进程数：
+ps aux | grep -c php-fpm
+
+=============================
+
+[root@DO-SG-H1 ~]# find / -name 'php-fpm' -type d
+/var/log/php-fpm
+/var/run/php-fpm
+
+用这个find命令查找出来的路径是不对的
+
+ which php
+/usr/bin/php
