@@ -1,0 +1,18 @@
+事物
+
+innodb 和 dbd支持
+
+开启事物 start transaction;
+
+
+commit/rollback
+
+
+设置事物级别 
+set session transaction isolation level read uncommitted; 脏读模式(能够读没有提交的数据)
+
+
+
+
+
+
