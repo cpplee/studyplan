@@ -46,3 +46,11 @@ kill -INT XXXX
 
 
 
+刚才服务器出了问题，排查了下 不知道为三面 php-fpm nginx 关闭了，apache自动开启
+netstat -anp  看到httpd在80端口
+杀掉他 systemctl stop httpd.service 
+
+开启php-fpm 和nginx
+./sbin/nginx
+service php-fpm start
+解决
