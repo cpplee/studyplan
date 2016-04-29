@@ -64,4 +64,167 @@ cp -rp old/ new/
 
 -p参数，可以保持权限、宿主、时间栈，还可能包括link等；还有更简单的，就是用：
 cp -a old/new/
+===============================================================================================
+-a参数，就等于-dpR。
+二、问题1
+好，我们来看看这次的问题。环境是：
+◎两个目录：old、new，其中old里面有个三个内容：test1文件、test2目录，还有就是.test3，这是一个隐含文件。
+引用
+[root@dc5 test]# ll -laR
+.:
+total 20
+drwxr-xr-x  4 root root 4096 Dec 15 11:55 .
+drwxrwxrwt  7 root root 4096 Dec 15 11:59 ..
+drwxr-xr-x  2 root root 4096 Dec 15 12:14 new
+drwxr-xr-x  3 root root 4096 Dec 15 12:14 old
+
+./new:
+total 8
+drwxr-xr-x  2 root root 4096 Dec 15 12:14 .
+drwxr-xr-x  4 root root 4096 Dec 15 11:55 ..
+
+./old:
+total 12
+drwxr-xr-x  3 root root 4096 Dec 15 12:14 .
+drwxr-xr-x  4 root root 4096 Dec 15 11:55 ..
+-rw-r--r--  1 root root    0 Dec 15 12:07 .test3
+-rw-r--r--  1 root root    0 Dec 15 12:05 test1
+drwxr-xr-x  2 root root 4096 Dec 15 12:14 test2
+
+./old/test2:
+total 8
+drwxr-xr-x  2 root root 4096 Dec 15 12:14 .
+drwxr-xr-x  3 root root 4096 Dec 15 12:14 ..
+
+◎操作一：
+引用
+[root@dc5 test]# cp -a old/* new/
+[root@dc5 test]# ll -laR new/
+new/:
+total 12
+drwxr-xr-x  3 root root 4096 Dec 15 12:15 .
+drwxr-xr-x  4 root root 4096 Dec 15 11:55 ..
+-rw-r--r--  1 root root    0 Dec 15 12:05 test1
+drwxr-xr-x  2 root root 4096 Dec 15 12:14 test2
+
+new/test2:
+total 8
+drwxr-xr-x  2 root root 4096 Dec 15 12:14 .
+drwxr-xr-x  3 root root 4096 Dec 15 12:15 ..
+
+问题出来了：隐含的.test3文件没有一齐拷贝到new目录下。
+原因是：*参数使用不正确。这样的写法，通常都是因为熟悉了过去Dos的格式（包括我自己），而实际在bash环境下，cp使用*是不能匹配类似.开头的隐含文件的。
+◎操作二
+正确的写法应该这样：
+引用
+[root@dc5 test]# cp -a old/. new/
+[root@dc5 test]# ll -laR new/
+new/:
+total 12
+drwxr-xr-x  3 root root 4096 Dec 15 12:14 .
+drwxr-xr-x  4 root root 4096 Dec 15 11:55 ..
+-rw-r--r--  1 root root    0 Dec 15 12:07 .test3
+-rw-r--r--  1 root root    0 Dec 15 12:05 test1
+drwxr-xr-x  2 root root 4096 Dec 15 12:14 test2
+
+new/test2:
+total 8
+drwxr-xr-x  2 root root 4096 Dec 15 12:14 .
+drwxr-xr-x  3 root root 4096 Dec 15 12:14 ..
+
+不用*号，而用.号代替。
+还有一种比较复杂一些的写法：
+引用
+[root@dc5 test]# cp -a old/* old/.[^.]* new/
+[root@dc5 test]# ll -laR new/
+new/:
+total 12
+drwxr-xr-x  3 root root 4096 Dec 15 12:25 .
+drwxr-xr-x  4 root root 4096 Dec 15 11:55 ..
+-rw-r--r--  1 root root    0 Dec 15 12:07 .test3
+-rw-r--r--  1 root root    0 Dec 15 12:05 test1
+drwxr-xr-x  2 root root 4096 Dec 15 12:14 test2
+
+new/test2:
+total 8
+drwxr-xr-x  2 root root 4096 Dec 15 12:14 .
+drwxr-xr-x  3 root root 4096 Dec 15 12:25 ..
+
+请注意写法，不要写成.*了。（原因请看下面）
+三、问题2
+上面提到不要写成.*，那.*代表什么？
+引用
+[root@dc5 test]# echo .*
+. ..
+
+.*代表的是当前目录，以及上一层目录。
+所以，使用.*会导致更大的问题：
+引用
+[root@dc5 test]# cp -a old/.* new/
+cp: cannot copy a directory, `old/..', into itself, `new/'
+cp: cannot copy a directory, `old/..', into itself, `new/'
+cp: will not create hard link `new/old' to directory `new/.'
+cp: overwrite `new/.test3'? y
+[root@dc5 test]# ll -laR new/
+new/:
+total 16
+drwxr-xr-x  4 root root 4096 Dec 15 11:55 .
+drwxr-xr-x  4 root root 4096 Dec 15 11:55 ..
+-rw-r--r--  1 root root    0 Dec 15 12:07 .test3
+drwxr-xr-x  2 root root 4096 Dec 15 12:14 new
+-rw-r--r--  1 root root    0 Dec 15 12:05 test1
+drwxr-xr-x  2 root root 4096 Dec 15 12:14 test2
+
+new/new:
+total 8
+drwxr-xr-x  2 root root 4096 Dec 15 12:14 .
+drwxr-xr-x  4 root root 4096 Dec 15 11:55 ..
+-rw-r--r--  1 root root    0 Dec 15 12:07 .test3
+-rw-r--r--  1 root root    0 Dec 15 12:05 test1
+
+new/test2:
+total 8
+drwxr-xr-x  2 root root 4096 Dec 15 12:14 .
+drwxr-xr-x  4 root root 4096 Dec 15 11:55 ..
+
+也就是说，使用.*就等于这样了：
+引用
+[root@dc5 test]# cp -a old/. old/.. old/.test3 new/
+[root@dc5 test]# echo old/.*
+old/. old/.. old/.test3
+
+四、扩展
+其实这样的问题，不单cp命令有这样的问题，在所有涉及含有特殊字符意义文件的命令时，都需要考虑，例如rm：
+引用
+[root@dc5 new]# ll -a
+total 12
+drwxr-xr-x  3 root root 4096 Dec 15 12:14 .
+drwxr-xr-x  4 root root 4096 Dec 15 11:55 ..
+-rw-r--r--  1 root root    0 Dec 15 12:07 .test3
+-rw-r--r--  1 root root    0 Dec 15 12:05 test1
+drwxr-xr-x  2 root root 4096 Dec 15 12:14 test2
+[root@dc5 new]# rm -rf *
+[root@dc5 new]# ll -a
+total 8
+drwxr-xr-x  2 root root 4096 Dec 15 12:40 .
+drwxr-xr-x  4 root root 4096 Dec 15 11:55 ..
+-rw-r--r--  1 root root    0 Dec 15 12:07 .test3
+
+正确的写法应该是：
+引用
+[root@dc5 new]# rm -rf .* *
+rm: cannot remove `.' or `..'
+rm: cannot remove `.' or `..'
+[root@dc5 new]# ll -a
+total 8
+drwxr-xr-x  2 root root 4096 Dec 15 12:42 .
+drwxr-xr-x  4 root root 4096 Dec 15 11:55 ..
+
+当然，这是一样的：
+引用
+[root@dc5 new]# rm -rf * .[^.]*
+[root@dc5 new]# ll -a
+total 8
+drwxr-xr-x  2 root root 4096 Dec 15 12:44 .
+drwxr-xr-x  4 root root 4096 Dec 15 11:55 ..
 
