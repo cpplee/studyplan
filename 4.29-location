@@ -1,0 +1,72 @@
+location = /{
+
+精准匹配
+}
+
+
+location  /{
+普通匹配
+
+}
+
+location ~ /{
+
+正则匹配
+}
+
+首先看有没有精准匹配,如果有,则停止匹配过程.
+location = patt {
+    config A
+}
+如果 $uri == patt,匹配成功，使用configA
+   location = / {
+              root   /var/www/html/;
+             index  index.htm index.html;
+        }
+         
+  location / {
+             root   /usr/local/nginx/html;
+            index  index.html index.htm;
+  }
+
+如果访问　　http://xxx.com/
+定位流程是　
+1: 精准匹配中　”/”   ,得到index页为　　index.htm
+2: 再次访问 /index.htm , 此次内部转跳uri已经是”/index.htm” , 
+根目录为/usr/local/nginx/html
+3: 最终结果,访问了 /usr/local/nginx/html/index.htm
+
+再来看,正则也来参与.
+location / {
+            root   /usr/local/nginx/html;
+            index  index.html index.htm;
+        }
+
+location ~ image {
+           root /var/www/image;
+           index index.html;
+}
+
+如果我们访问  http://xx.com/image/logo.png
+此时, “/” 与”/image/logo.png” 匹配
+同时,”image”正则 与”image/logo.png”也能匹配,谁发挥作用?
+正则表达式的成果将会使用.
+
+图片真正会访问 /var/www/image/logo.png 
+
+
+ 
+location / {
+             root   /usr/local/nginx/html;
+             index  index.html index.htm;
+         }
+ 
+location /foo {
+            root /var/www/html;
+             index index.html;
+}
+我们访问 http://xxx.com/foo
+ 对于uri “/foo”,   两个location的patt,都能匹配他们
+即 ‘/’能从左前缀匹配 ‘/foo’, ‘/foo’也能左前缀匹配’/foo’,
+此时, 真正访问 /var/www/html/index.html 
+原因:’/foo’匹配的更长,因此使用之.;
