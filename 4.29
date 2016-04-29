@@ -1,0 +1,30 @@
+#完成nginx定时处理日志的工作
+
+简历一个/data目录
+在目录下简历一个runlog.sh
+
+#!/bin/bash
+LOGPATH=/usr/local/nginx/logs/z.com.access.log
+BASEPATH=/data
+
+
+bak=$BASEPATH/$(date -d yesterday +%Y%m%d%H%M).zcom.access.log
+echo $bak;
+
+
+
+
+mv $LOGPATH $bak
+touch $LOGPATH
+
+kill -USR1 `cat /usr/local/nginx/logs/nginx.pid`
+
+
+
+
+
+
+crontab -e定时任务
+*/1 * * * * sh /date/runlog.sh
+分 时 日 月 周 命令
+
