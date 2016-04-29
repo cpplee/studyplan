@@ -27,4 +27,20 @@ kill -USR1 `cat /usr/local/nginx/logs/nginx.pid`
 crontab -e定时任务
 */1 * * * * sh /date/runlog.sh
 分 时 日 月 周 命令
+重新建立具有时间目录的shell脚本
+
+#!/bin/bash
+LOGPATH=/usr/local/nginx/logs/z.com.access.log
+BASEPATH=/data/$(date -d yesterday +%Y%m)
+
+mkdir -p $BASEPATH
+bak=$BASEPATH/$(date -d yesterday +%d%H%M).zcom.access.log
+
+mv $LOGPATH $bak
+touch $LOGPATH
+
+kill -USR1 `cat /usr/local/nginx/logs/nginx.pid`
+
+
+
 
