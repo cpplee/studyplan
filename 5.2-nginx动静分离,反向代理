@@ -44,3 +44,24 @@ more dummy-host.example.com-access_log  拉到最后
 [root@localhost logs]# 
 这是日志查看到的
 
+[root@localhost logs]# ll
+总用量 3108
+-rw-r--r--. 1 www  root 3102025 5月   2 19:29 access.log
+-rw-r--r--. 1 www  root   26671 5月   2 19:01 error.log
+-rw-r--r--  1 root root       5 5月   1 21:13 nginx.pid
+-rw-r--r--  1 root root       0 5月   2 19:00 z.com.access.log
+[root@localhost logs]# tail access.log 
+192.168.1.203 - - [02/May/2016:19:29:06 -0700] "GET /ecshop/themes/default/images/display_mode_grid_act.gif HTTP/1.1" 304 0 "http://192.168.1.211/ecshop/category-3-b0-min200-max1700-attr198.0.195.0.html" "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36"
+192.168.1.203 - - [02/May/2016:19:29:06 -0700] "GET /ecshop/themes/default/images/display_mode_text.gif HTTP/1.1" 304 0 "http://192.168.1.211/ecshop/category-3-b0-min200-max1700-attr198.0.195.0.html" "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36"
+192.168.1.203 - - [02/May/2016:19:29:06 -0700] "GET /ecshop/themes/default/images/goods_id_DESC.gif HTTP/1.1" 304 0 "http://192.168.1.211/ecshop/category-3-b0-min200-max1700-attr198.0.195.0.html" "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36"
+192.168.1.203 - - [02/May/2016:19:29:06 -0700] "GET /ecshop/themes/default/images/shop_price_default.gif HTTP/1.1" 304 0 "http://192.168.1.211/ecshop/category-3-b0-min200-max1700-attr198.0.195.0.html" "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36"
+192.168.1.203 - - [02/May/2016:19:29:06 -0700] "GET /ecshop/themes/default/images/last_update_default.gif HTTP/1.1" 304 0 "http://192.168.1.211/ecshop/category-3-b0-min200-max1700-attr198.0.195.0.html" "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36"
+192.168.1.203 - - [02/May/2016:19:29:06 -0700] "GET /ecshop/themes/default/images/bnt_top.gif HTTP/1.1" 304 0 "http://192.168.1.211/ecshop/category-3-b0-min200-max1700-attr198.0.195.0.html" "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36"
+192.168.1.203 - - [02/May/2016:19:29:06 -0700] "GET /ecshop/themes/default/images/bnt_home.gif HTTP/1.1" 304 0 "http://192.168.1.211/ecshop/category-3-b0-min200-max1700-attr198.0.195.0.html" "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36"
+192.168.1.203 - - [02/May/2016:19:29:06 -0700] "GET /ecshop/themes/default/images/xml_rss2.gif HTTP/1.1" 304 0 "http://192.168.1.211/ecshop/category-3-b0-min200-max1700-attr198.0.195.0.html" "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36"
+192.168.1.203 - - [02/May/2016:19:29:06 -0700] "GET /ecshop/api/cron.php?t=1462213746 HTTP/1.1" 200 0 "http://192.168.1.211/ecshop/category-3-b0-min200-max1700-attr198.0.195.0.html" "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36"
+192.168.1.203 - - [02/May/2016:19:29:06 -0700] "GET /ecshop/api/cron.php?t=1462213746 HTTP/1.1" 200 0 "http://192.168.1.211/ecshop/category-3-b0-min200-max1700-attr198.0.195.0.html" "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36"
+[root@localhost logs]# 
+
+
+
