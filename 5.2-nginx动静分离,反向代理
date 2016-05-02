@@ -1,0 +1,32 @@
+首先 禁用nginx下fastcgi 的location配置
+
+关掉 php-fpm
+
+这个时候80端口不支持php的文件,只支持html的文件
+
+
+如果访问.php的文件,网站将要下载这个 php的程序 
+
+
+
+
+
+在apache下 httpd-vohsts.conf修改虚拟目录使得他的访问地址 修改为 nginx下的默认地址 我用的就是nginx/html
+(记住端口号要修改,我使用8080)
+
+在httpd.conf中Include这个地址,我是将他复制一份 放入conf/目录下的conf.mouXXX.*下，在配置文件中一次性用通配符 全部导入
+
+要注意修改apache的访问目录权限,因为默认的情况下apache的访问是禁止的,也不允许外网访问,主要是修改 是否允许覆盖
+是否Allow from all
+
+
+这个时候重启apache ,回到nginx的配置文件
+
+
+我们需要在nginx的配置文件中 在正则匹配到.php
+的文件的时候将他 proxy_pass 到 apache的IP:port上面
+
+这个时候基本完成了 反向代理
+
+
+
