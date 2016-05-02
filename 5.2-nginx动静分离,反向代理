@@ -31,5 +31,16 @@
 这个时候可以访问apache下的日志文件可以得到php得到了访问,但是其他文件并没有得到访问!
 
 
-
+192.168.1.211 - - [02/May/2016:19:01:11 -0700] "GET /p.php HTTP/1.0" 200 170
+192.168.1.211 - - [02/May/2016:19:01:24 -0700] "GET /p.php HTTP/1.0" 200 170
+192.168.1.211 - - [02/May/2016:19:10:06 -0700] "GET /ecshop/index.php HTTP/1.0" 
+200 34616
+192.168.1.211 - - [02/May/2016:19:10:06 -0700] "GET /ecshop/api/cron.php?t=14622
+12606 HTTP/1.0" 200 -
+192.168.1.211 - - [02/May/2016:19:10:06 -0700] "GET /ecshop/api/cron.php?t=14622
+12606 HTTP/1.0" 200 -
+[root@localhost logs]# 
+[root@localhost logs]# 
+[root@localhost logs]# 
+这是日志查看到的
 
