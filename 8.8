@@ -12,4 +12,24 @@
 
 5在使用双引号字符串的时候如果在字符串中使用数组元素的引用变量不需要加引号，也可以使用大括号，在使用大括号的时候数组的引用变量需要加引号，也可以使用对象调用函数等
 。
-6.
+6操作文件,csv格式。
+<?php
+$sales = array(
+  array('1','1','1','2'),
+  array('2','2','2','3'),
+  array('3','3','3','4'),
+  array('4','4','4','5'),
+  array('5','5','5','6'),
+);
+// $fh = fopen('php://output','w');
+ $fh = fopen('outfile.csv','w');
+ foreach ($sales as $sales_line) {
+   if(fputcsv($fh, $sales_line)===false){
+     die("Can't write CSV line");
+   }
+ }
+fclose($fh);
+?>
+
+
+
