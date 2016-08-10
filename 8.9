@@ -10,4 +10,6 @@
   list($int,$dec) = explode('.',$number);
   print number_format($number,strlen($dec));
   如果在不知道小数点位数的情况下，又不想数字摄入到最接近的整数，就可以像一上面代码这么做。
-8.
+8.bcadd()等bcmatch函数,若使用gmp ,$ts = gmp_add(),最后要使用gmp_strval($ts)进行转换
+
+
