@@ -21,3 +21,7 @@ function checkDateIsValid($date, $formats = array("Y-m-d", "Y/m/d")) {
 
     return false;
 }
+
+3.如果对数组unset()某一个数组元素以后,会出现那个位置空缺，继续增加的数组元素会在后面继续出现，如果想把数组压缩成一个稠密填充的数字数组，
+可用array_values()他可以自动的重新索引数组并且清除空缺的元素位置。
+4
