@@ -1,1 +1,26 @@
-1.自然排序(常用)可以用usort()去自己写个函数去判断,也可以用自带的natsort(自然排序 10,11,2,20  会排列2,10,11,20)
+1.自然排序(常用)可以用usort()去自己写个函数去判断,也可以用自带的natsort(自然排序 10,11,2,20  会排列2,10,11,20) natcasesort()会忽略大小写
+使用usort进行反自然排序的示例
+function natrsort($a,$b){
+   return strnatcmp($b,$a);
+}
+
+$test = array('test1.php','test10.php','test11.php','test2.php');
+
+usort($tests,'natrsort');
+
+2.注意在排序过程中，每当usort()函数需要比较两个元素的大小时，都要计算排序函数的返回值，这就降低了排序的速度，为了减少不需要的计算，可以使用
+pc_array_sort()函数来缓存要进行比较得值
+function pc_array_sort($array,$map_func,$sort_func=''){
+
+$mapped = array_map($map_func,$array);
+
+if(''==$sort_func){
+    asort($mapped);
+}else {
+  uasort($mapped,$sort_func);
+}
+  while(list($key)=each($mapped)){
+    $sorted[]=$array[$key];
+  }
+return $sorted;
+}
